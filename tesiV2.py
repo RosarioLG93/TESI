@@ -8,7 +8,6 @@ import serial.tools.list_ports
 from tkinter import filedialog
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,NavigationToolbar2Tk)
-import TESI.Scheda
 from ManoV2 import Mano
 from pressione import Pressione
 
@@ -34,13 +33,14 @@ class finestraMano():
 
         self.initNotebook()
         self.initTab()
-        self.tabConnessioni(self.tab_connessioni)
+        self.initTabConnessioni(self.tab_connessioni)
+        self.initTabSeriale(self.tab_seriale)
 
 
     def initNotebook(self):
         self.notebook_1 = ttk.Notebook(self.root,width=340,height=self.dim_y-50)
         self.notebook_2 = ttk.Notebook(self.root,width=400,height=self.dim_y-50)
-        self.notebook_3 = ttk.Notebook(self.root,width=470, height=self.dim_y - 50)
+        self.notebook_3 = ttk.Notebook(self.root,width=470, height=self.dim_y-50)
 
     def initTab(self):
         #1
@@ -62,7 +62,8 @@ class finestraMano():
 
 
 
-    def tabConnessioni(self,tab):
+    def initTabConnessioni(self,tab):
+        self.combo=[]
         self.bt_scansiona=Button(tab,text="Scansiona",command=self.scansionePorte)
         self.bt_scansiona.place(x=10,y=5)
         Label(tab, text="Motori & Retroazione: ").place(x=10, y=35)
@@ -70,21 +71,25 @@ class finestraMano():
         Label(tab, text="Guanto: ").place(x=10, y=95)
         ttk.Separator(tab, orient='horizontal').place(x=10, y=145, relwidth=0.9)
 
-        self.elenco=[]
-        anteprima = tk.StringVar(value="Seleziona porta")
+        self.elenco=[["Seleziona porta"],["Seleziona porta"],["Seleziona porta"]]
+        self.combo_valore=[tk.StringVar(value="Seleziona porta"),tk.StringVar(value="Seleziona porta"),tk.StringVar(value="Seleziona porta")]
+        #IMPORTANTE: è necessario avere
         #COMBO1
-        self.combo1 = ttk.Combobox(tab, textvariable=anteprima)
-        self.combo1.place(x=140, y=35)
-        self.combo1["state"]=DISABLED
+        self.combo.append(ttk.Combobox(tab, textvariable=self.combo_valore[0]))
+        self.combo[0].place(x=140, y=35)
+        self.combo[0]["state"]=DISABLED
 
         #COMBO2
-        self.combo2 = ttk.Combobox(tab, textvariable=anteprima)
-        self.combo2.place(x=140, y=65)
-        self.combo2["state"] = DISABLED
+        self.combo.append(ttk.Combobox(tab, textvariable=self.combo_valore[1]))
+        self.combo[1].place(x=140, y=65)
+        self.combo[1]["state"] = DISABLED
         # COMBO3
-        self.combo3 = ttk.Combobox(tab, textvariable=anteprima)
-        self.combo3.place(x=140, y=95)
-        self.combo3["state"] = DISABLED
+        self.combo.append(ttk.Combobox(tab, textvariable=self.combo_valore[2]))
+        self.combo[2].place(x=140, y=95)
+        self.combo[2]["state"] = DISABLED
+
+        print(self.combo[0])
+        print(self.combo[1])
 
         Label(tab, text="Elenco porte COM").place(x=10, y=150)
 
@@ -95,23 +100,36 @@ class finestraMano():
         Button(tab, text="Connetti", command=lambda: self.connetti(1)).place(x=350,y=62)
         Button(tab, text="Connetti", command=lambda: self.connetti(2)).place(x=350, y=92)
 
+        # ***************** INFO ************************
+        Label(tab, text="INFO: ").place(x=10, y=780)
+        self.label_info = ttk.Label(tab, text="-----")
+        self.label_info.place(x=10, y=800)
 
 
     def connetti(self,i):
         print("Mi collego a arduino "+str(i))
+        #TODO: funzione connetti(i) da implemetare
 
 
     def scansionePorte(self):
         self.port_list=serial.tools.list_ports.comports(include_links=False)
         self.porte=""
-        self.elenco.clear()
+        self.elenco[0].clear()
+        self.elenco[1].clear()
+        self.elenco[2].clear()
+
         for x in self.port_list:
             self.porte=x.device+" ---> "+x.description+"\n" #COM4 --> Arduino Uno
-            self.elenco.append(x.device)
+            self.elenco[0].append(x.device)
+            self.elenco[1].append(x.device)
+            self.elenco[2].append(x.device)
+        print(self.elenco[0])
+        print(self.elenco[1] )
+        print(self.elenco[2] )
 
-        self.combo1["values"] = self.elenco
-        self.combo2["values"] = self.elenco
-        self.combo3["values"] = self.elenco
+        self.combo[0]["values"] = self.elenco[0]
+        self.combo[1]["values"] = self.elenco[1]
+        self.combo[2]["values"] = self.elenco[2]
 
         if(self.porte==""):
             print("Non ho trovato nulla")
@@ -119,15 +137,37 @@ class finestraMano():
         else:
             self.label_porte["text"] = self.porte
             if(self.arduino_connesso[0]==False):
-                self.combo1["state"] = "readonly" #attiva la selezione, opposto di disabled
+                self.combo[0]["state"] = "readonly" #attiva la selezione, opposto di disabled
             if (self.arduino_connesso[1] == False):
-                self.combo2["state"] = "readonly"
+                self.combo[1]["state"] = "readonly"
             if (self.arduino_connesso[2] == False):
-                self.combo3["state"] = "readonly"
+                self.combo[2]["state"] = "readonly"
 
 
-
-
+    def initTabSeriale(self,tab):
+        #LABEL FRAME X3
+        self.scheda_seriale=[]
+        self.scheda_seriale.insert(0,ttk.LabelFrame(tab,text="Scheda motori & Retroazione", width=450, height=250))
+        self.scheda_seriale.insert(0,ttk.LabelFrame(tab, text="Scheda pressione", width=450, height=250))
+        self.scheda_seriale.insert(0,ttk.LabelFrame(tab, text="Scheda guanto", width=450, height=250))
+        self.scheda_seriale[0].place(x=10, y=10)
+        self.scheda_seriale[1].place(x=10, y=270)
+        self.scheda_seriale[2].place(x=10, y=530)
+        #ENTRY TEXT X3
+        #self.comando=[]
+        self.entry_comando=[]
+        self.entry_comando.insert(0,Entry(self.scheda_seriale[0], width=20))
+        self.entry_comando[0].place(x=10,y=10)
+        self.entry_comando.insert(1, Entry(self.scheda_seriale[1], width=20))
+        self.entry_comando[1].place(x=10, y=10)
+        self.entry_comando.insert(2, Entry(self.scheda_seriale[2], width=20))
+        self.entry_comando[2].place(x=10, y=10)
+        #BUTTON
+        #TODO: impletare invia() per le schede seriali
+        Button(self.scheda_seriale[0], text="Invia", command=lambda: {}).place(x=160, y=5)
+        Button(self.scheda_seriale[1], text="Invia", command=lambda:{}).place(x=160, y=5)
+        Button(self.scheda_seriale[2], text="Invia", command=lambda: {}).place(x=160, y=5)
+        #TEXT + SCROLL
 
 
 mano_dx=finestraMano()
