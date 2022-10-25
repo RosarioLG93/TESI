@@ -1,3 +1,5 @@
+import os
+import tkinter.filedialog
 from tkinter import ttk
 from tkinter import *
 import tkinter as tk
@@ -35,6 +37,8 @@ class finestraMano():
         self.initTab()
         self.initTabConnessioni(self.tab_connessioni)
         self.initTabSeriale(self.tab_seriale)
+        self.initTabMovimenti(self.tab_creatore_1)
+        self.root.protocol("WM_DELETE_WINDOW",self.chiudiTutto) #per sicurezza
 
 
     def initNotebook(self):
@@ -148,8 +152,8 @@ class finestraMano():
         #LABEL FRAME X3
         self.scheda_seriale=[]
         self.scheda_seriale.insert(0,ttk.LabelFrame(tab,text="Scheda motori & Retroazione", width=450, height=250))
-        self.scheda_seriale.insert(0,ttk.LabelFrame(tab, text="Scheda pressione", width=450, height=250))
-        self.scheda_seriale.insert(0,ttk.LabelFrame(tab, text="Scheda guanto", width=450, height=250))
+        self.scheda_seriale.insert(1,ttk.LabelFrame(tab, text="Scheda pressione", width=450, height=250))
+        self.scheda_seriale.insert(2,ttk.LabelFrame(tab, text="Scheda guanto", width=450, height=250))
         self.scheda_seriale[0].place(x=10, y=10)
         self.scheda_seriale[1].place(x=10, y=270)
         self.scheda_seriale[2].place(x=10, y=530)
@@ -187,7 +191,89 @@ class finestraMano():
         self.testo_seriale[1]["yscrollcommand"] = self.scroll_seriale[1].set
         self.testo_seriale[2]["yscrollcommand"] = self.scroll_seriale[2].set
         #BIND ENTRY
+        #TODO: bind entry con parametro event
+        self.entry_comando[0].bind("<Return>", lambda event: {}) #la funzione richiede event
+        self.entry_comando[1].bind("<Return>", lambda event: {})
+        self.entry_comando[2].bind("<Return>", lambda event: {})
 
+
+    def initTabMovimenti(self,tab):
+        Label(tab, text="Seleziona cartella").place(x=10, y=10)
+        Button(tab, text="Seleziona ", command=self.selezionaCartella).place(x=150, y=10)
+        Button(tab, text="Apri cartella", command=self.apriCartella).place(x=250, y=10)
+        Label(tab, text="Cartella selezionata: ").place(x=10, y=40)
+        #label cartella selezionata
+        self.label_cartella=Label(tab, text="------")
+        self.label_cartella.place(x=10,y=60)
+        #LISTA FILE .TXT NELLA CARTELLA SELEZIONATA
+        self.listbox_file = Listbox(tab, height=10, width=30)
+        self. listbox_file_scrollbar = Scrollbar(tab, orient='vertical', command=self.listbox_file.yview)
+        self.listbox_file["yscrollcommand"] = self.listbox_file_scrollbar.set
+        self.listbox_file_scrollbar.place(x=190, y=80, height=160)
+        self.listbox_file.place(x=10, y=80)
+        self.listbox_file.bind("<Return>", self.visualizzaMicromovimenti)
+        self.listbox_file.bind("<Double-1>", self.visualizzaMicromovimenti)
+        #ENTRY NUOVO FILE MOVIMENTO
+        self.entry_nome_movimento = Entry(tab, width=20)
+        self.entry_nome_movimento.place(x=220, y=83)
+        self.entry_nome_movimento.bind("<Return>", self.creaFile)
+        #BUTTON CREA FILE
+        self.bt_crea_file = Button(tab, text="Crea", command=self.creaFile)
+        self.bt_crea_file.place(x=350, y=80)
+        #BUTTON ELIMINA FILE
+        self.bt_elimina = Button(tab, text="Elimina", command=self.eliminaFile)
+        self.bt_elimina.place(x=220, y=120)
+        #LISTA MICROMOVIMENTI
+        Label(tab, text="Elenco micromovimenti:").place(x=10, y=260)
+        self.label_file_aperto = Label(tab, text="-----")
+        self.label_file_aperto.place(x=150, y=260)
+        self.listbox_micromovimenti = Listbox(tab, height=15, width=40)  # listvariable=lista_file2
+        self.listbox_micromovimenti.place(x=10, y=280)
+        self.listbox_micromovimenti_scrollbar_y = Scrollbar(tab, orient='vertical',command=self.listbox_micromovimenti.yview)
+        self.listbox_micromovimenti_scrollbar_x = Scrollbar(tab, orient='horizontal',command=self.listbox_micromovimenti.xview)
+        self.listbox_micromovimenti["yscrollcommand"] = self.listbox_micromovimenti_scrollbar_y.set
+        self.listbox_micromovimenti["xscrollcommand"] = self.listbox_micromovimenti_scrollbar_x.set
+        self.listbox_micromovimenti_scrollbar_y.place(x=254, y=282, height=240)
+        self.listbox_micromovimenti_scrollbar_x.place(x=10, y=523, width=250)
+        self.listbox_micromovimenti.bind("<Delete>", self.eliminaMicromovimento)
+        self.listbox_micromovimenti.bind("<BackSpace>", self.eliminaMicromovimento)
+        #INFO TAB MOVIMENTI (CREATORE)
+        Label(tab, text="Info:").place(x=10, y=780)
+        self.label_info_creatore = Label(tab, text="-----")
+        self.label_info_creatore["text"] = "-----"
+        self.label_info_creatore.place(x=10, y=800)
+
+    def selezionaCartella(self):
+        try:
+            self.cartella=tkinter.filedialog.askdirectory(initialdir=os.getcwd(),title="Seleziona cartella movimento")
+            self.label_cartella["text"]=self.cartella
+            self.aggiornaListaFile()
+        except Exception as e:
+            self.label_info_creatore["text"]=e.__str__()
+
+
+    def aggiornaListaFile(self):
+        pass
+
+    def apriCartella(self):
+        pass
+
+
+    def visualizzaMicromovimenti(self):
+        pass
+
+    def creaFile(self):
+        pass
+
+    def eliminaFile(self):
+        pass
+
+    def eliminaMicromovimento(self):
+        pass
+
+    def chiudiTutto(self):
+        #TODO: prima di chiudere verificare se c'è qualcosa da salvare
+        self.root.destroy()
 
 
 
