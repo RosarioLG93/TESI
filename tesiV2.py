@@ -186,7 +186,7 @@ class finestraMano():
         self.testo_seriale[0]["yscrollcommand"] = self.scroll_seriale[0].set
         self.testo_seriale[1]["yscrollcommand"] = self.scroll_seriale[1].set
         self.testo_seriale[2]["yscrollcommand"] = self.scroll_seriale[2].set
-
+        #BIND ENTRY
 
 
 
