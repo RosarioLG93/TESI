@@ -8,8 +8,8 @@ import serial.tools.list_ports
 from tkinter import filedialog
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,NavigationToolbar2Tk)
-from ManoV2 import Mano
-from pressione import Pressione
+#from ManoV2 import Mano
+#from pressione import Pressione
 
 
 
@@ -167,7 +167,7 @@ class finestraMano():
         Button(self.scheda_seriale[0], text="Invia", command=lambda: {}).place(x=160, y=5)
         Button(self.scheda_seriale[1], text="Invia", command=lambda:{}).place(x=160, y=5)
         Button(self.scheda_seriale[2], text="Invia", command=lambda: {}).place(x=160, y=5)
-        #TEXT + SCROLL
+        #TEXT
         self.testo_seriale=[]
         self.testo_seriale.insert(0,Text(self.scheda_seriale[0],width=50, height=11, state='normal'))
         self.testo_seriale[0].place(x=10,y=40)
@@ -175,6 +175,21 @@ class finestraMano():
         self.testo_seriale[1].place(x=10, y=40)
         self.testo_seriale.insert(2, Text(self.scheda_seriale[2], width=50, height=11, state='normal'))
         self.testo_seriale[2].place(x=10, y=40)
+        #SCROLL
+        self.scroll_seriale=[]
+        self.scroll_seriale.insert(0,ttk.Scrollbar(self.scheda_seriale[0], orient="vertical", command=self.testo_seriale[0].yview))
+        self.scroll_seriale.insert(1, ttk.Scrollbar(self.scheda_seriale[1], orient="vertical",command=self.testo_seriale[1].yview))
+        self.scroll_seriale.insert(2, ttk.Scrollbar(self.scheda_seriale[2], orient="vertical",command=self.testo_seriale[2].yview))
+        self.scroll_seriale[0].place(x=400, y=40, relheight=0.8)
+        self.scroll_seriale[1].place(x=400, y=40, relheight=0.8)
+        self.scroll_seriale[2].place(x=400, y=40, relheight=0.8)
+        self.testo_seriale[0]["yscrollcommand"] = self.scroll_seriale[0].set
+        self.testo_seriale[1]["yscrollcommand"] = self.scroll_seriale[1].set
+        self.testo_seriale[2]["yscrollcommand"] = self.scroll_seriale[2].set
+
+
+
+
 
 mano_dx=finestraMano()
 mainloop()
