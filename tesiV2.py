@@ -214,11 +214,11 @@ class finestraMano():
         self.listbox_file.bind("<Return>", self.visualizzaMicromovimenti)
         self.listbox_file.bind("<Double-1>", self.visualizzaMicromovimenti)
         #ENTRY NUOVO FILE MOVIMENTO
-        self.entry_nome_movimento = Entry(tab, width=20)
-        self.entry_nome_movimento.place(x=220, y=83)
-        self.entry_nome_movimento.bind("<Return>", self.creaFile)
+        self.entry_nuovo_movimento = Entry(tab, width=20)
+        self.entry_nuovo_movimento.place(x=220, y=83)
         #BUTTON CREA FILE
         self.bt_crea_file = Button(tab, text="Crea", command=self.creaFile)
+        #self.entry_nuovo_movimento.bind("<Return>", self.creaFile)
         self.bt_crea_file.place(x=350, y=80)
         #BUTTON ELIMINA FILE
         self.bt_elimina = Button(tab, text="Elimina", command=self.eliminaFile)
@@ -235,6 +235,7 @@ class finestraMano():
         self.listbox_micromovimenti["xscrollcommand"] = self.listbox_micromovimenti_scrollbar_x.set
         self.listbox_micromovimenti_scrollbar_y.place(x=254, y=282, height=240)
         self.listbox_micromovimenti_scrollbar_x.place(x=10, y=523, width=250)
+        #BIND
         self.listbox_micromovimenti.bind("<Delete>", self.eliminaMicromovimento)
         self.listbox_micromovimenti.bind("<BackSpace>", self.eliminaMicromovimento)
         #INFO TAB MOVIMENTI (CREATORE)
@@ -253,17 +254,41 @@ class finestraMano():
 
 
     def aggiornaListaFile(self):
-        pass
+        self.elenco_file=os.listdir(self.cartella)
+        #elimino tutto
+        self.listbox_file.delete(0,END)
+        self.listbox_micromovimenti.delete(0,END)
+        for x in self.elenco_file:
+            self.listbox_file.insert(0,x)
+
+
 
     def apriCartella(self):
-        pass
+        try:
+            os.startfile(self.cartella)
+        except:
+            self.label_info_creatore["text"]="Seleziona una cartella"
 
 
     def visualizzaMicromovimenti(self):
         pass
 
     def creaFile(self):
-        pass
+        if(self.entry_nuovo_movimento.get().strip()==""):
+            self.label_info_creatore["text"]="Inserisci il nome del file da creare!"
+            return
+        try:
+            os.chdir(self.cartella)
+            file=open(self.entry_nuovo_movimento.get()+".txt",'x')
+            file.close()
+            self.aggiornaListaFile()
+            self.entry_nuovo_movimento["text"]=""
+            self.label_info_creatore["text"]="File creato"
+        except Exception as e:
+            print(e.__str__())
+            self.label_info_creatore["text"]="Errore creazione file\n"+e.__str__()
+
+
 
     def eliminaFile(self):
         pass
