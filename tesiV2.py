@@ -168,7 +168,13 @@ class finestraMano():
         Button(self.scheda_seriale[1], text="Invia", command=lambda:{}).place(x=160, y=5)
         Button(self.scheda_seriale[2], text="Invia", command=lambda: {}).place(x=160, y=5)
         #TEXT + SCROLL
-
+        self.testo_seriale=[]
+        self.testo_seriale.insert(0,Text(self.scheda_seriale[0],width=50, height=11, state='normal'))
+        self.testo_seriale[0].place(x=10,y=40)
+        self.testo_seriale.insert(1, Text(self.scheda_seriale[1], width=50, height=11, state='normal'))
+        self.testo_seriale[1].place(x=10, y=40)
+        self.testo_seriale.insert(2, Text(self.scheda_seriale[2], width=50, height=11, state='normal'))
+        self.testo_seriale[2].place(x=10, y=40)
 
 mano_dx=finestraMano()
 mainloop()
