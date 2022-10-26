@@ -39,6 +39,20 @@ class finestraMano():
         self.initTabSeriale(self.tab_seriale)
         self.initTabMovimenti(self.tab_creatore_1)
         self.root.protocol("WM_DELETE_WINDOW",self.chiudiTutto) #per sicurezza
+        self.initCartellaLavoro()
+
+
+
+
+    def initCartellaLavoro(self):
+        #al primoa avvio cerca la cartealla /movimenti
+        # IMPSOTO LA CARTELLA DI DEFAULT
+        try:
+            self.cartella = os.path.join(os.getcwd(), "movimenti")  # per compatibilità linux e windows
+            self.aggiornaListaFile()
+            self.label_cartella["text"] = self.cartella
+        except:
+            self.label_info_creatore["text"]="Cartella di defautl movimenti non trovata "
 
 
     def initNotebook(self):
@@ -211,6 +225,7 @@ class finestraMano():
         self.listbox_file["yscrollcommand"] = self.listbox_file_scrollbar.set
         self.listbox_file_scrollbar.place(x=190, y=80, height=160)
         self.listbox_file.place(x=10, y=80)
+        #BIND PER APRIRE MICROMOVIMENTI
         self.listbox_file.bind("<Return>", self.visualizzaMicromovimenti)
         self.listbox_file.bind("<Double-1>", self.visualizzaMicromovimenti)
         #ENTRY NUOVO FILE MOVIMENTO
@@ -235,7 +250,7 @@ class finestraMano():
         self.listbox_micromovimenti["xscrollcommand"] = self.listbox_micromovimenti_scrollbar_x.set
         self.listbox_micromovimenti_scrollbar_y.place(x=254, y=282, height=240)
         self.listbox_micromovimenti_scrollbar_x.place(x=10, y=523, width=250)
-        #BIND
+        #BIND ELIMINA MICROMOVIMENTO
         self.listbox_micromovimenti.bind("<Delete>", self.eliminaMicromovimento)
         self.listbox_micromovimenti.bind("<BackSpace>", self.eliminaMicromovimento)
         #INFO TAB MOVIMENTI (CREATORE)
@@ -270,8 +285,23 @@ class finestraMano():
             self.label_info_creatore["text"]="Seleziona una cartella"
 
 
-    def visualizzaMicromovimenti(self):
-        pass
+    def visualizzaMicromovimenti(self,event): #forse vuole event per la questione del bind...
+        self.file_dettagli=self.listbox_file.get(self.listbox_file.curselection())
+        self.listbox_micromovimenti.delete(0,END)
+        try:
+            f=open(os.path.join(self.cartella,self.file_dettagli),"r")
+            righe=f.readlines()
+            for riga in righe:
+                self.listbox_micromovimenti.insert(END,riga)
+            f.close()
+            self.label_file_aperto["text"]=self.file_dettagli
+            self.abilitaPulsanti()
+        except Exception as e:
+            self.label_info_creatore["text"]=e.__str__()
+
+
+
+
 
     def creaFile(self):
         if(self.entry_nuovo_movimento.get().strip()==""):
@@ -291,6 +321,34 @@ class finestraMano():
 
 
     def eliminaFile(self):
+        try:
+            self.file_eliminare=self.listbox_file.get(self.listbox_file.curselection())
+            scelta=messagebox.askyesno("Eliminare "+self.file_eliminare, "Sicuro??")
+
+            if scelta==False:
+                return
+        except:
+            messagebox.showerror("Errore","Seleziona un file")
+            return
+        try:
+            os.chdir(self.cartella) #dove il file si trova
+            #nel caso sia un movimento aperto devo chiudere la listbox micromoviemnti
+            if(self.file_eliminare==self.label_file_aperto):
+                self.listbox_micromovimenti.delete(0,END)
+                self.label_file_aperto["text"]="-----------"
+                self.disabilitaPulsanti() #TODO: disattivare i pulsanti dedicati al micromovimento
+            os.remove(self.file_eliminare)
+            self.aggiornaListaFile()
+            self.label_info_creatore["text"]=self.file_eliminare + " eliminato"
+            self.label_file_aperto["text"]="--------"
+        except:
+            self.label_info_creatore["text"]="Errore durante eliminazione "+self.file_eliminare
+
+
+    def abilitaPulsanti(self):
+        pass
+
+    def disabilitaPulsanti(self):
         pass
 
     def eliminaMicromovimento(self):
@@ -303,4 +361,5 @@ class finestraMano():
 
 
 mano_dx=finestraMano()
+#mano_sx=finestraMano(titolo="mano_sx")
 mainloop()
