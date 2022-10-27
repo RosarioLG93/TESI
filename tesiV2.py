@@ -38,11 +38,44 @@ class finestraMano():
         self.initTabConnessioni(self.tab_connessioni)
         self.initTabSeriale(self.tab_seriale)
         self.initTabMovimenti(self.tab_creatore_1)
+        self.initPusantiGestionMovimento(self.tab_creatore_1)
+        self.initPulsantiAcquisizioneMovimento(self.tab_creatore_1)
+        self.initMenu()
+
         self.root.protocol("WM_DELETE_WINDOW",self.chiudiTutto) #per sicurezza
         self.initCartellaLavoro()
 
 
+    def initMenu(self):
+        self.menu_bar=Menu(self.root)
+        self.menu_info = Menu(self.menu_bar, tearoff = 0)
+        self.menu_strumenti=Menu(self.menu_bar, tearoff = 0)
+        self.menu_bar.add_cascade(menu=self.menu_strumenti, label="Strumenti")
+        self.menu_bar.add_cascade(menu=self.menu_info,label="Info")
 
+        self.menu_strumenti.add_command(label="Registrazione",command=self.apriRegistratore)
+        self.menu_strumenti.add_command(label="Posizione iniziale", command=lambda:())
+        self.menu_strumenti.add_command(label="Configura mappa", command=lambda:())
+        self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda:())
+
+        self.menu_info.add_command(label="Manuale", command=lambda:())
+        self.menu_info.add_command(label="Protocollo arduino", command=lambda:())
+
+        self.root["menu"] = self.menu_bar
+
+    def apriRegistratore(self):
+        print("Avvio registratore")
+        self.win = Toplevel(self.root)
+        self.win.title("Registratore")
+        self.win.geometry("400x400+200+200")
+        self.win.protocol("WM_DELETE_WINDOW", self.chiudiRegistratore)  # per sicurezza
+        self.menu_strumenti.entryconfigure(0, state=DISABLED)
+
+
+
+    def chiudiRegistratore(self):
+        self.menu_strumenti.entryconfigure(0,state=ACTIVE)
+        self.win.destroy()
 
     def initCartellaLavoro(self):
         #al primoa avvio cerca la cartealla /movimenti
@@ -258,6 +291,58 @@ class finestraMano():
         self.label_info_creatore = Label(tab, text="-----")
         self.label_info_creatore["text"] = "-----"
         self.label_info_creatore.place(x=10, y=800)
+
+    def initPusantiGestionMovimento(self,tab):
+        # PULSANTI ACQUIZIONE E GESTIONE MICROMOVIMENTI
+        self.frame_gestione = Frame(tab)
+        self.frame_gestione.place(x=280, y=280)
+        Button(self.frame_gestione, text="Invia", command=lambda:()).grid(row=2, column=0, stick="NW", padx=10,pady=10)
+        Button(self.frame_gestione, text="Anteprima", command=lambda:()).grid(row=3, column=0, stick="NW",padx=10, pady=10)
+        Button(self.frame_gestione, text="Salva", command=lambda:()).grid(row=4, column=0, stick="NW", padx=10,pady=10)
+        Button(self.frame_gestione, text="Deseleziona", command=lambda:()).grid(row=5, column=0, stick="NW", padx=10,pady=10)
+        Button(self.frame_gestione, text="Elimina", command=lambda:()).grid(row=6, column=0, stick="NW", padx=10,pady=10)
+
+
+
+    def disabilitaPulsanti(self):
+        for x in self.frame_gestione.winfo_children():
+            x["state"] = DISABLED
+        for x in self.frame_acquisizione.winfo_children():
+            x["state"] = DISABLED
+
+    def abilitaPulsanti(self):
+        for x in self.frame_gestione.winfo_children():
+            x["state"] = NORMAL
+        for x in self.frame_acquisizione.winfo_children():
+            x["state"] = NORMAL
+
+
+
+
+
+    def initPulsantiAcquisizioneMovimento(self,tab):
+        self.frame_acquisizione = Frame(tab, width=380, height=150, bg='lightblue')
+        self.frame_acquisizione.place(x=10, y=550)
+        self.entry_comando_creatore = Entry(self.frame_acquisizione, width=36)
+        self.entry_comando_creatore.place(x=10, y=10)
+        self.bt_aggiungi_micromovimento = Button(self.frame_acquisizione, text="Aggiungi", command=self.aggiungiMicromovimento)
+        self.bt_aggiungi_micromovimento.place(x=240, y=10)
+        Button(self.frame_acquisizione, text="Acquisisci Controllo", command=self.acquisisciPosizioneControllo).place(x=10, y=40)
+        Button(self.frame_acquisizione, text="Acquisisci Retroazione", command=self.acquisisciPosizioneRetroazione).place(x=10,                                                                                          y=70)
+        Button(self.frame_acquisizione, text="Acquisisci Guanto", command=self.acquisisciPosizioneGuanto).place(x=10, y=100)
+
+    def aggiungiMicromovimento(self):
+        pass
+
+    def acquisisciPosizioneControllo(self):
+        pass
+
+    def acquisisciPosizioneRetroazione(self):
+        pass
+
+    def acquisisciPosizioneGuanto(self):
+        pass
+
 
     def selezionaCartella(self):
         try:
