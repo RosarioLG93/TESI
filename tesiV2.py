@@ -139,8 +139,7 @@ class finestraMano():
         self.combo[2].place(x=140, y=95)
         self.combo[2]["state"] = DISABLED
 
-        print(self.combo[0])
-        print(self.combo[1])
+
 
         Label(tab, text="Elenco porte COM").place(x=10, y=150)
 
@@ -174,9 +173,9 @@ class finestraMano():
             self.elenco[0].append(x.device)
             self.elenco[1].append(x.device)
             self.elenco[2].append(x.device)
-        print(self.elenco[0])
-        print(self.elenco[1] )
-        print(self.elenco[2] )
+        #print(self.elenco[0])
+        #print(self.elenco[1] )
+        #print(self.elenco[2] )
 
         self.combo[0]["values"] = self.elenco[0]
         self.combo[1]["values"] = self.elenco[1]
@@ -215,7 +214,7 @@ class finestraMano():
         self.entry_comando[2].place(x=10, y=10)
         #BUTTON
         #TODO: impletare invia() per le schede seriali
-        Button(self.scheda_seriale[0], text="Invia", command=lambda: {}).place(x=160, y=5)
+        Button(self.scheda_seriale[0], text="Invia", command=lambda:()).place(x=160, y=5)
         Button(self.scheda_seriale[1], text="Invia", command=lambda:{}).place(x=160, y=5)
         Button(self.scheda_seriale[2], text="Invia", command=lambda: {}).place(x=160, y=5)
         #TEXT
@@ -266,7 +265,7 @@ class finestraMano():
         self.entry_nuovo_movimento.place(x=220, y=83)
         #BUTTON CREA FILE
         self.bt_crea_file = Button(tab, text="Crea", command=self.creaFile)
-        #self.entry_nuovo_movimento.bind("<Return>", self.creaFile)
+        self.entry_nuovo_movimento.bind("<Return>", self.creaFile)
         self.bt_crea_file.place(x=350, y=80)
         #BUTTON ELIMINA FILE
         self.bt_elimina = Button(tab, text="Elimina", command=self.eliminaFile)
@@ -296,7 +295,7 @@ class finestraMano():
         # PULSANTI ACQUIZIONE E GESTIONE MICROMOVIMENTI
         self.frame_gestione = Frame(tab)
         self.frame_gestione.place(x=280, y=280)
-        Button(self.frame_gestione, text="Invia", command=lambda:()).grid(row=2, column=0, stick="NW", padx=10,pady=10)
+        Button(self.frame_gestione, text="Invia", command=lambda:print("invia")).grid(row=2, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Anteprima", command=lambda:()).grid(row=3, column=0, stick="NW",padx=10, pady=10)
         Button(self.frame_gestione, text="Salva", command=lambda:()).grid(row=4, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Deseleziona", command=lambda:()).grid(row=5, column=0, stick="NW", padx=10,pady=10)
@@ -306,13 +305,13 @@ class finestraMano():
 
     def disabilitaPulsanti(self):
         for x in self.frame_gestione.winfo_children():
-            x["state"] = DISABLED
+            x.config(state=DISABLED)
         for x in self.frame_acquisizione.winfo_children():
             x["state"] = DISABLED
 
     def abilitaPulsanti(self):
         for x in self.frame_gestione.winfo_children():
-            x["state"] = NORMAL
+            x.config(state=NORMAL)
         for x in self.frame_acquisizione.winfo_children():
             x["state"] = NORMAL
 
@@ -372,6 +371,7 @@ class finestraMano():
 
     def visualizzaMicromovimenti(self,event): #forse vuole event per la questione del bind...
         self.file_dettagli=self.listbox_file.get(self.listbox_file.curselection())
+        self.label_file_aperto["text"] = self.file_dettagli
         self.listbox_micromovimenti.delete(0,END)
         try:
             f=open(os.path.join(self.cartella,self.file_dettagli),"r")
@@ -379,7 +379,7 @@ class finestraMano():
             for riga in righe:
                 self.listbox_micromovimenti.insert(END,riga)
             f.close()
-            self.label_file_aperto["text"]=self.file_dettagli
+
             self.abilitaPulsanti()
         except Exception as e:
             self.label_info_creatore["text"]=e.__str__()
@@ -388,7 +388,7 @@ class finestraMano():
 
 
 
-    def creaFile(self):
+    def creaFile(self,event=None): #con il bind mi serve event, senza bind (cioè solo click) event non serve ma è richiesto
         if(self.entry_nuovo_movimento.get().strip()==""):
             self.label_info_creatore["text"]="Inserisci il nome del file da creare!"
             return
@@ -417,11 +417,11 @@ class finestraMano():
             return
         try:
             os.chdir(self.cartella) #dove il file si trova
-            #nel caso sia un movimento aperto devo chiudere la listbox micromoviemnti
-            if(self.file_eliminare==self.label_file_aperto):
+            #nel caso sia un movimento aperto devo chiudere la listbox micromoviemnti e disabilitare i pulsanti
+            if(self.file_eliminare==self.label_file_aperto["text"]):
                 self.listbox_micromovimenti.delete(0,END)
                 self.label_file_aperto["text"]="-----------"
-                self.disabilitaPulsanti() #TODO: disattivare i pulsanti dedicati al micromovimento
+                self.disabilitaPulsanti()
             os.remove(self.file_eliminare)
             self.aggiornaListaFile()
             self.label_info_creatore["text"]=self.file_eliminare + " eliminato"
@@ -430,11 +430,6 @@ class finestraMano():
             self.label_info_creatore["text"]="Errore durante eliminazione "+self.file_eliminare
 
 
-    def abilitaPulsanti(self):
-        pass
-
-    def disabilitaPulsanti(self):
-        pass
 
     def eliminaMicromovimento(self):
         pass
