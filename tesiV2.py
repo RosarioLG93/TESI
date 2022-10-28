@@ -436,12 +436,12 @@ class finestraMano():
             #nel caso sia un movimento aperto devo chiudere la listbox micromoviemnti e disabilitare i pulsanti
             if(self.file_eliminare==self.label_file_aperto["text"]):
                 self.listbox_micromovimenti.delete(0,END)
-                self.label_file_aperto["text"]="-----------"
+                self.label_file_aperto["text"]="-----------" #solo se coincide con quello aperto
                 self.disabilitaPulsanti()
             os.remove(self.file_eliminare)
             self.aggiornaListaFile()
             self.label_info_creatore["text"]=self.file_eliminare + " eliminato"
-            self.label_file_aperto["text"]="--------"
+
         except:
             self.label_info_creatore["text"]="Errore durante eliminazione "+self.file_eliminare
 
