@@ -44,6 +44,7 @@ class finestraMano():
 
         self.root.protocol("WM_DELETE_WINDOW",self.chiudiTutto) #per sicurezza
         self.initCartellaLavoro()
+        self.disabilitaPulsanti() #in questo modo devo necessariamente aprire un file per abiltiare i comandi
 
 
     def initMenu(self):
@@ -324,22 +325,37 @@ class finestraMano():
         self.frame_acquisizione.place(x=10, y=550)
         self.entry_comando_creatore = Entry(self.frame_acquisizione, width=36)
         self.entry_comando_creatore.place(x=10, y=10)
+        self.entry_comando_creatore.bind("<Return>",self.aggiungiMicromovimento)
         self.bt_aggiungi_micromovimento = Button(self.frame_acquisizione, text="Aggiungi", command=self.aggiungiMicromovimento)
         self.bt_aggiungi_micromovimento.place(x=240, y=10)
         Button(self.frame_acquisizione, text="Acquisisci Controllo", command=self.acquisisciPosizioneControllo).place(x=10, y=40)
         Button(self.frame_acquisizione, text="Acquisisci Retroazione", command=self.acquisisciPosizioneRetroazione).place(x=10,                                                                                          y=70)
         Button(self.frame_acquisizione, text="Acquisisci Guanto", command=self.acquisisciPosizioneGuanto).place(x=10, y=100)
 
-    def aggiungiMicromovimento(self):
-        pass
+    def aggiungiMicromovimento(self,event=None):#event mi serve per il bind, metto None se il metodo non è chiamato da bind
+        #entry_comando_creatore
+        # TODO:aggiungiMicromovimento
+        if(self.entry_comando_creatore.get().strip()==""):
+            self.label_info_creatore["text"]="Inserisci comando"
+        else:
+            posizione=self.listbox_micromovimenti.curselection().__len__()
+            if(posizione==0):
+                self.listbox_micromovimenti.insert(END,self.entry_comando_creatore.get()+"\n")
+            else:
+                self.listbox_micromovimenti.insert(int(self.listbox_micromovimenti.curselection()[0])+1,self.entry_comando_creatore.get())
+        self.entry_comando_creatore.delete(0,END)
+        self.listbox_micromovimenti.see(END) #in questo modo si vede sempre l'ultimo comando inserito
 
     def acquisisciPosizioneControllo(self):
+        # TODO:acquisisciPosizioneControllo
         pass
 
     def acquisisciPosizioneRetroazione(self):
+        # TODO:acquisisciPosizioneRetroazione
         pass
 
     def acquisisciPosizioneGuanto(self):
+        #TODO:acquisisciPosizioneGuanto
         pass
 
 
@@ -432,6 +448,7 @@ class finestraMano():
 
 
     def eliminaMicromovimento(self):
+        #TODO: eliminaMicromoviemnto
         pass
 
     def chiudiTutto(self):
