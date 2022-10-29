@@ -10,7 +10,7 @@ import serial.tools.list_ports
 from tkinter import filedialog
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,NavigationToolbar2Tk)
-#from ManoV2 import Mano
+from ManoV3 import Mano
 #from pressione import Pressione
 
 
@@ -41,6 +41,8 @@ class finestraMano():
         self.initPusantiGestionMovimento(self.tab_creatore_1)
         self.initPulsantiAcquisizioneMovimento(self.tab_creatore_1)
         self.initMenu()
+        self.initTabMappe()
+
 
         self.root.protocol("WM_DELETE_WINDOW",self.chiudiTutto) #per sicurezza
         self.initCartellaLavoro()
@@ -64,6 +66,7 @@ class finestraMano():
 
         self.root["menu"] = self.menu_bar
 
+    #-----------------REGISTRA MOVIMENTO ----------------------
     def apriRegistratore(self):
         print("Avvio registratore")
         self.win = Toplevel(self.root)
@@ -78,23 +81,33 @@ class finestraMano():
         self.menu_strumenti.entryconfigure(0,state=ACTIVE)
         self.win.destroy()
 
+    #---------------------------------------------------------
+
     def initCartellaLavoro(self):
         #al primoa avvio cerca la cartealla /movimenti
         # IMPSOTO LA CARTELLA DI DEFAULT
         try:
             self.cartella = os.path.join(os.getcwd(), "movimenti")  # per compatibilità linux e windows
             self.aggiornaListaFile()
-            self.label_cartella["text"] = self.cartella
+            self.label_cartella["text"] = self.cartella.__str__()
         except:
             self.label_info_creatore["text"]="Cartella di defautl movimenti non trovata "
 
 
     def initNotebook(self):
+        self.notebook_0 = ttk.Notebook(self.root, width=470, height=self.dim_y - 50)
         self.notebook_1 = ttk.Notebook(self.root,width=340,height=self.dim_y-50)
         self.notebook_2 = ttk.Notebook(self.root,width=400,height=self.dim_y-50)
         self.notebook_3 = ttk.Notebook(self.root,width=470, height=self.dim_y-50)
 
+
     def initTab(self):
+        #0 Mappe
+        self.tab_mappa_controllo=Frame(self.notebook_0)
+        self.tab_mappa_pressione = Frame(self.notebook_0)
+        self.notebook_0.add(self.tab_mappa_controllo,text="Mappe")
+        self.notebook_0.add(self.tab_mappa_pressione, text="Pressione")
+        self.notebook_0.place(x=5,y=10)
         #1
         self.tab_controllo = Frame(self.notebook_1)
         self.tab_impostazioni = Frame(self.notebook_1)
@@ -297,8 +310,8 @@ class finestraMano():
         self.frame_gestione = Frame(tab)
         self.frame_gestione.place(x=280, y=280)
         Button(self.frame_gestione, text="Invia", command=lambda:print("invia")).grid(row=2, column=0, stick="NW", padx=10,pady=10)
-        Button(self.frame_gestione, text="Anteprima", command=lambda:()).grid(row=3, column=0, stick="NW",padx=10, pady=10)
-        Button(self.frame_gestione, text="Salva", command=lambda:()).grid(row=4, column=0, stick="NW", padx=10,pady=10)
+       # Button(self.frame_gestione, text="Anteprima", command=lambda:()).grid(row=3, column=0, stick="NW",padx=10, pady=10)
+        Button(self.frame_gestione, text="Salva", command=self.salvaMovimento).grid(row=4, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Deseleziona", command=lambda:()).grid(row=5, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Elimina", command=lambda:()).grid(row=6, column=0, stick="NW", padx=10,pady=10)
 
@@ -346,6 +359,9 @@ class finestraMano():
         self.entry_comando_creatore.delete(0,END)
         self.listbox_micromovimenti.see(END) #in questo modo si vede sempre l'ultimo comando inserito
 
+
+
+
     def acquisisciPosizioneControllo(self):
         # TODO:acquisisciPosizioneControllo
         pass
@@ -388,6 +404,7 @@ class finestraMano():
     def visualizzaMicromovimenti(self,event): #forse vuole event per la questione del bind...
         self.file_dettagli=self.listbox_file.get(self.listbox_file.curselection())
         self.label_file_aperto["text"] = self.file_dettagli
+        print("x="+self.label_file_aperto["text"])
         self.listbox_micromovimenti.delete(0,END)
         try:
             f=open(os.path.join(self.cartella,self.file_dettagli),"r")
@@ -401,6 +418,17 @@ class finestraMano():
             self.label_info_creatore["text"]=e.__str__()
 
 
+    def salvaMovimento(self):
+
+        try:
+            file=open(os.path.join(self.label_cartella["text"],self.label_file_aperto["text"]),"w")
+            for x in self.listbox_micromovimenti.get(0,END):
+                file.write(x)
+            file.close()
+            self.label_info_creatore["text"]=self.label_file_aperto["text"]+" salvato"
+        except Exception as e:
+            tk.messagebox.showerror("Errore", "Errore durante il salvataggio: "+e.__str__())
+            #print(e.__str__())
 
 
 
@@ -448,8 +476,30 @@ class finestraMano():
 
 
     def eliminaMicromovimento(self):
+
         #TODO: eliminaMicromoviemnto
         pass
+
+
+
+#---------------------------------- MAPPA ---------------------------------------
+
+    def initTabMappe(self):
+        self.scheda_mappa_controllo = LabelFrame(self.tab_mappa_controllo, text="Controllo", width=360, height=400)
+        self.scheda_mappa_controllo.place(x=5, y=10)
+        self.scheda_mappa_retroazione = LabelFrame(self.tab_mappa_controllo, text="Mappa 3D", width=360, height=400)
+        self.scheda_mappa_retroazione.place(x=5, y=430)
+
+        self.scheda_mappa_pressione = LabelFrame(self.tab_mappa_pressione, text="Pressione", width=360, height=400)
+        self.scheda_mappa_pressione.place(x=5, y=10)
+
+        #TODO: inserimenti mappe
+        fig, ax = Mano.initFigura()  # in questo modo le 3 immagini saranno inserite nella stessa figura
+        mano_controllo = Mano(fig, ax, 'r', )
+        mano_retroazione = Mano(fig, ax, 'b')
+        mano_antemprima = Mano(fig, ax, 'g')
+
+
 
     def chiudiTutto(self):
         #TODO: prima di chiudere verificare se c'è qualcosa da salvare
