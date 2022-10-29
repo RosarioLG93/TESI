@@ -1,0 +1,5 @@
+p0=4,2,2 #formato x,y,z (in questo caso z costante)
+p1=7,2,2
+p2=7,8,2
+p3=1,8,2
+p4=1,2,2

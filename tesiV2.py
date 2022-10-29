@@ -481,6 +481,10 @@ class finestraMano():
         pass
 
 
+    def chiudiTutto(self):
+        #TODO: prima di chiudere verificare se c'è qualcosa da salvare
+        self.root.destroy()
+
 
 #---------------------------------- MAPPA ---------------------------------------
 
@@ -494,16 +498,20 @@ class finestraMano():
         self.scheda_mappa_pressione.place(x=5, y=10)
 
         #TODO: inserimenti mappe
-        fig, ax = Mano.initFigura()  # in questo modo le 3 immagini saranno inserite nella stessa figura
-        mano_controllo = Mano(fig, ax, 'r', )
-        mano_retroazione = Mano(fig, ax, 'b')
-        mano_antemprima = Mano(fig, ax, 'g')
+
+        self.mano_controllo = Mano()
+        # ----- canvas mano --------
+        canvas_mano = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
+        canvas_mano.get_tk_widget().place(x=10, y=40)
+
+        toolbar_mano = NavigationToolbar2Tk(canvas_mano,self.scheda_mappa_controllo)
+        toolbar_mano.update()
+        toolbar_mano.place(x=10, y=350)
+
+        self.mano_controllo.visualizzaPosizioneDesiderata()
+        canvas_mano.draw()
 
 
-
-    def chiudiTutto(self):
-        #TODO: prima di chiudere verificare se c'è qualcosa da salvare
-        self.root.destroy()
 
 
 

@@ -1,0 +1,5 @@
+d00=1,2.2,2 #(pollice) coincide con p4 , questi sono solo i punti iniziali
+d10=1.2,8,2 #(indice) coincide con p3 , tutto il resto prosegue con le lunghezze
+d20=3.4,8,2
+d30=5.2,8,2
+d40=7,8,2
