@@ -7,14 +7,18 @@ class Mano():
 
 
     def __init__(self,colore='r'):
+        #self.configPlt()
         self.fig=plt.Figure(figsize=(3.0,3.0))
+        #self.fig.tight_layout()
         self.ax=self.fig.add_subplot(111,projection='3d')
+        self.ax.axis('off')
         #plt.axis('off')
         self.ax.set(xlim=(-3, 10), ylim=(0, 13), zlim=(-3, 10))
         # estetica grafico
         #plt.style.use('classic')
         self.ax.view_init(25, -210)  # rotazione
         #plt.tight_layout()
+
 
         self.p = np.array([[0] * 3] * 5, dtype='f')  # sono i punti del palmo
         self.dl = np.array([[0] * 3] * 5, dtype='f')  # lunghezza delle sezioni di ogni dito
@@ -29,7 +33,7 @@ class Mano():
         self.raccolta_dito_punti = {0: [], 1: [], 2: [], 3: [], 4: []}
         self.raccolta_dito_linee = {0: [], 1: [], 2: [], 3: [], 4: []}
 
-        self.configPlt()
+        #self.configPlt()
         self.initLunghezza()
         self.initPalmo()
         self.initPunto()
