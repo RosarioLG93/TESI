@@ -1,3 +1,4 @@
+import copy
 import os
 import tkinter.filedialog
 from tkinter import ttk
@@ -11,6 +12,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,NavigationToolbar2Tk)
 from ManoV3 import Mano
+from ManoPressione import ManoPressione
 #from pressione import Pressione
 
 
@@ -57,7 +59,7 @@ class finestraMano():
         self.menu_bar.add_cascade(menu=self.menu_info,label="Info")
 
         self.menu_strumenti.add_command(label="Registrazione",command=self.apriRegistratore)
-        self.menu_strumenti.add_command(label="Posizione iniziale", command=lambda:())
+        self.menu_strumenti.add_command(label="Impostazioni", command=lambda:())
         self.menu_strumenti.add_command(label="Configura mappa", command=lambda:())
         self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda:())
 
@@ -71,14 +73,38 @@ class finestraMano():
         print("Avvio registratore")
         self.win = Toplevel(self.root)
         self.win.title("Registratore")
-        self.win.geometry("400x400+200+200")
+        self.win.geometry("800x600+200+200")
+        self.win.resizable(False,False)
+        self.win.attributes("-topmost", True) #sempre in primo piano
         self.win.protocol("WM_DELETE_WINDOW", self.chiudiRegistratore)  # per sicurezza
         self.menu_strumenti.entryconfigure(0, state=DISABLED)
+        self.scheda_mappa_guanto = LabelFrame(self.win, text="Controllo", width=350, height=390)
+        self.scheda_mappa_guanto.place(x=10, y=10)
+        # MAPPA CONTROLLO
+        self.mano_guanto = Mano('g')
+        # ----- canvas mano --------
+        canvas_mano_guanto = FigureCanvasTkAgg(self.mano_guanto.getFig(), master=self.scheda_mappa_guanto)
+        canvas_mano_guanto.get_tk_widget().place(x=20, y=10)
+
+        toolbar_mano_guanto = NavigationToolbar2Tk(canvas_mano_guanto, self.scheda_mappa_guanto)
+        toolbar_mano_guanto.update()
+        toolbar_mano_guanto.place(x=10, y=320)
+
+        self.mano_guanto.visualizzaPosizioneDesiderata()
+        canvas_mano_guanto.draw()
+
+        #TAB
+        self.notebook_test=ttk.Notebook(self.win, width=400, height=550)
+        self.tab_test = Frame(self.notebook_test)
+        self.notebook_test.add(self.tab_test, text="Mov")
+        self.notebook_test.place(x=380,y=10)
+
 
 
 
     def chiudiRegistratore(self):
         self.menu_strumenti.entryconfigure(0,state=ACTIVE)
+        del self.mano_guanto #distruttore
         self.win.destroy()
 
     #---------------------------------------------------------
@@ -111,8 +137,8 @@ class finestraMano():
         #1
         self.tab_controllo = Frame(self.notebook_1)
         self.tab_impostazioni = Frame(self.notebook_1)
-        self.notebook_1.add(self.tab_controllo, text="Controllo")
-        self.notebook_1.add(self.tab_impostazioni, text="Impostazioni")
+        self.notebook_1.add(self.tab_controllo, text="Controllo V1")
+        self.notebook_1.add(self.tab_impostazioni, text="Controllo V2")
         self.notebook_1.place(x=390, y=10)
         #2
         self.tab_creatore_1 = Frame(self.notebook_2)
@@ -310,12 +336,15 @@ class finestraMano():
         self.frame_gestione = Frame(tab)
         self.frame_gestione.place(x=280, y=280)
         Button(self.frame_gestione, text="Invia", command=lambda:print("invia")).grid(row=2, column=0, stick="NW", padx=10,pady=10)
-       # Button(self.frame_gestione, text="Anteprima", command=lambda:()).grid(row=3, column=0, stick="NW",padx=10, pady=10)
+        Button(self.frame_gestione, text="Modifica", command=self.modificaMicromovimento).grid(row=3, column=0, stick="NW",padx=10, pady=10)
         Button(self.frame_gestione, text="Salva", command=self.salvaMovimento).grid(row=4, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Deseleziona", command=lambda:()).grid(row=5, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Elimina", command=lambda:()).grid(row=6, column=0, stick="NW", padx=10,pady=10)
 
 
+    def modificaMicromovimento(self):
+        #TODO: modificaMicromovimento
+        pass
 
     def disabilitaPulsanti(self):
         for x in self.frame_gestione.winfo_children():
@@ -489,28 +518,53 @@ class finestraMano():
 #---------------------------------- MAPPA ---------------------------------------
 
     def initTabMappe(self):
-        self.scheda_mappa_controllo = LabelFrame(self.tab_mappa_controllo, text="Controllo", width=360, height=400)
-        self.scheda_mappa_controllo.place(x=5, y=10)
-        self.scheda_mappa_retroazione = LabelFrame(self.tab_mappa_controllo, text="Mappa 3D", width=360, height=400)
-        self.scheda_mappa_retroazione.place(x=5, y=430)
+        self.scheda_mappa_controllo = LabelFrame(self.tab_mappa_controllo, text="Controllo", width=350, height=390)
+        self.scheda_mappa_controllo.place(x=10, y=10)
+        self.scheda_mappa_retroazione = LabelFrame(self.tab_mappa_controllo, text="Retroazione ", width=350, height=390)
+        self.scheda_mappa_retroazione.place(x=10, y=430)
 
         self.scheda_mappa_pressione = LabelFrame(self.tab_mappa_pressione, text="Pressione", width=360, height=400)
         self.scheda_mappa_pressione.place(x=5, y=10)
 
         #TODO: inserimenti mappe
-
+        #MAPPA CONTROLLO
         self.mano_controllo = Mano()
         # ----- canvas mano --------
-        canvas_mano = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
-        canvas_mano.get_tk_widget().place(x=10, y=40)
+        canvas_mano_controllo = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
+        canvas_mano_controllo.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano = NavigationToolbar2Tk(canvas_mano,self.scheda_mappa_controllo)
-        toolbar_mano.update()
-        toolbar_mano.place(x=10, y=350)
+        toolbar_mano_controllo = NavigationToolbar2Tk(canvas_mano_controllo,self.scheda_mappa_controllo)
+        toolbar_mano_controllo.update()
+        toolbar_mano_controllo.place(x=10, y=320)
 
         self.mano_controllo.visualizzaPosizioneDesiderata()
-        canvas_mano.draw()
+        canvas_mano_controllo.draw()
 
+        #MAPPA RETROAZIONE
+        self.mano_retroazione = Mano('b')
+        # ----- canvas mano --------
+        canvas_mano_retroazione = FigureCanvasTkAgg(self.mano_retroazione.getFig(), master=self.scheda_mappa_retroazione)
+        canvas_mano_retroazione.get_tk_widget().place(x=20, y=10)
+
+        toolbar_mano_retroazione = NavigationToolbar2Tk(canvas_mano_retroazione, self.scheda_mappa_retroazione)
+        toolbar_mano_retroazione.update()
+        toolbar_mano_retroazione.place(x=10, y=320)
+
+        self.mano_retroazione.visualizzaPosizioneDesiderata()
+        canvas_mano_retroazione.draw()
+
+        #MAPPA PRESSIONE
+        self.mano_pressione = ManoPressione("Pressione")
+        # ----- canvas mano --------
+        canvas_mano_pressione = FigureCanvasTkAgg(self.mano_pressione.getFig(),master=self.scheda_mappa_pressione)
+        canvas_mano_pressione.get_tk_widget().place(x=20, y=10)
+
+        toolbar_mano_pressione = NavigationToolbar2Tk(canvas_mano_pressione, self.scheda_mappa_pressione)
+        toolbar_mano_pressione.update()
+        toolbar_mano_pressione.place(x=10, y=320)
+
+        #self.mano_pressione.visualizzaPosizioneDesiderata()
+        canvas_mano_pressione.draw()
 
 
 
