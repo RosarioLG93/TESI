@@ -186,10 +186,13 @@ class finestraMano():
         self.label_porte = Label(tab, text="--------------\n--------------")
         self.label_porte.place(x=10, y=170)
 
-        Button(tab, text="Connetti",command=lambda: self.connetti(0)).place(x=350, y=32)
-        Button(tab, text="Connetti", command=lambda: self.connetti(1)).place(x=350,y=62)
-        Button(tab, text="Connetti", command=lambda: self.connetti(2)).place(x=350, y=92)
-
+        self.bt_connetti=[None,None,None]
+        self.bt_connetti[0]=Button(tab, text="Connetti",command=lambda: self.connetti(0))
+        self.bt_connetti[0].place(x=350, y=32)
+        self.bt_connetti[1]=Button(tab, text="Connetti", command=lambda: self.connetti(1))
+        self.bt_connetti[1].place(x=350,y=62)
+        self.bt_connetti[2]=Button(tab, text="Connetti", command=lambda: self.connetti(2))
+        self.bt_connetti[2].place(x=350, y=92)
         # ***************** INFO ************************
         Label(tab, text="INFO: ").place(x=10, y=780)
         self.label_info = ttk.Label(tab, text="-----")
@@ -198,7 +201,32 @@ class finestraMano():
 
     def connetti(self,i):
         print("Mi collego a arduino "+str(i))
-        #TODO: funzione connetti(i) da implemetare
+        if(self.arduino_connesso[i]==False):
+            #connetti
+            try:
+                self.arduino[i]=serial.Serial(port=self.combo[i].get(),baudrate=9600,stopbits=1,bytesize=8)
+                self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
+                self.combo[i]["state"] = DISABLED
+                self.bt_connetti[i]["text"]="Disconnetti"
+                self.arduino_connesso[i]=True
+                #TODO: startThreadLettura(i)
+            except Exception as e:
+                self.label_info["text"]="Errore connessione "+self.combo[i].get()
+                print(e.__str__())
+
+        else:
+            self.arduino_connesso[i]=False
+            self.bt_connetti[i]["text"] = "Connetti"
+            try:
+                self.arduino[i].close()
+                self.combo[i]["state"]="readonly"
+                self.label_info["text"]="Scheda disconnessa"
+                # TODO: stopThreadLettura(i)
+            except:
+                self.label_info["text"] = "Errore disconnessione"
+
+
+
 
 
     def scansionePorte(self):
