@@ -186,19 +186,47 @@ class finestraMano():
         self.label_porte = Label(tab, text="--------------\n--------------")
         self.label_porte.place(x=10, y=170)
 
-        Button(tab, text="Connetti",command=lambda: self.connetti(0)).place(x=350, y=32)
-        Button(tab, text="Connetti", command=lambda: self.connetti(1)).place(x=350,y=62)
-        Button(tab, text="Connetti", command=lambda: self.connetti(2)).place(x=350, y=92)
-
+        self.bt_connetti=[None,None,None]
+        self.bt_connetti[0]=Button(tab, text="Connetti",command=lambda: self.connetti(0))
+        self.bt_connetti[0].place(x=350, y=32)
+        self.bt_connetti[1]=Button(tab, text="Connetti", command=lambda: self.connetti(1))
+        self.bt_connetti[1].place(x=350,y=62)
+        self.bt_connetti[2]=Button(tab, text="Connetti", command=lambda: self.connetti(2))
+        self.bt_connetti[2].place(x=350, y=92)
         # ***************** INFO ************************
-        Label(tab, text="INFO: ").place(x=10, y=780)
-        self.label_info = ttk.Label(tab, text="-----")
-        self.label_info.place(x=10, y=800)
+        Label(self.notebook_3, text="INFO: ").place(x=10, y=800)
+        self.label_info = ttk.Label(self.notebook_3, text="-----")
+        self.label_info.place(x=10, y=820)
 
 
     def connetti(self,i):
         print("Mi collego a arduino "+str(i))
-        #TODO: funzione connetti(i) da implemetare
+        if(self.arduino_connesso[i]==False):
+            #connetti
+            try:
+                self.arduino[i]=serial.Serial(port=self.combo[i].get(),baudrate=9600,stopbits=1,bytesize=8)
+                self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
+                self.combo[i]["state"] = DISABLED
+                self.bt_connetti[i]["text"]="Disconnetti"
+                self.arduino_connesso[i]=True
+                #TODO: startThreadLettura(i)
+            except Exception as e:
+                self.label_info["text"]="Errore connessione "+self.combo[i].get()
+                print(e.__str__())
+
+        else:
+            self.arduino_connesso[i]=False
+            self.bt_connetti[i]["text"] = "Connetti"
+            try:
+                self.arduino[i].close()
+                self.combo[i]["state"]="readonly"
+                self.label_info["text"]="Scheda disconnessa"
+                # TODO: stopThreadLettura(i)
+            except:
+                self.label_info["text"] = "Errore disconnessione"
+
+
+
 
 
     def scansionePorte(self):
@@ -254,9 +282,9 @@ class finestraMano():
         self.entry_comando[2].place(x=10, y=10)
         #BUTTON
         #TODO: impletare invia() per le schede seriali
-        Button(self.scheda_seriale[0], text="Invia", command=lambda:()).place(x=160, y=5)
-        Button(self.scheda_seriale[1], text="Invia", command=lambda:{}).place(x=160, y=5)
-        Button(self.scheda_seriale[2], text="Invia", command=lambda: {}).place(x=160, y=5)
+        Button(self.scheda_seriale[0], text="Invia", command=lambda:self.inviaComando(0)).place(x=160, y=5)
+        Button(self.scheda_seriale[1], text="Invia", command=lambda:self.inviaComando(1)).place(x=160, y=5)
+        Button(self.scheda_seriale[2], text="Invia", command=lambda: self.inviaComando(2)).place(x=160, y=5)
         #TEXT
         self.testo_seriale=[]
         self.testo_seriale.insert(0,Text(self.scheda_seriale[0],width=50, height=11, state='normal'))
@@ -281,6 +309,30 @@ class finestraMano():
         self.entry_comando[0].bind("<Return>", lambda event: {}) #la funzione richiede event
         self.entry_comando[1].bind("<Return>", lambda event: {})
         self.entry_comando[2].bind("<Return>", lambda event: {})
+
+    #--------- INVIA COMANDO --------
+
+    def inviaComando(self,i):
+        print("Invio comando di entry_comando["+str(i)+"]\nComando da inviare: "+self.entry_comando[i].get())
+        if(self.arduino_connesso[i]==True):
+            #verifico la presenza di un comando
+            if(self.entry_comando[i].get().strip() !=""):
+                #provo a inviare
+                try:
+                    self.arduino[i].write(self.entry_comando[i].get().encode())
+                except Exception as e:
+                    print(e.__str__())
+                    self.label_info["text"]="Errore invio comando"
+            else:
+                self.label_info["text"]="Inserisci un comando"
+
+        else:
+            #notifica che arduino[i] non è connesso
+            self.label_info["text"]="Errore: Arduino non connesso"
+
+
+
+
 
 
     def initTabMovimenti(self,tab):
@@ -565,6 +617,10 @@ class finestraMano():
 
         #self.mano_pressione.visualizzaPosizioneDesiderata()
         canvas_mano_pressione.draw()
+
+
+
+#---------------- THREAD ------------------------------
 
 
 
