@@ -217,13 +217,16 @@ class finestraMano():
                 self.bt_connetti[i]["text"]="Disconnetti"
                 self.arduino_connesso[i]=True
                 #TODO: startThreadLettura(i)
+                self.startThreadLettura(i)
             except Exception as e:
                 self.label_info["text"]="Errore connessione "+self.combo[i].get()
-                print(e.__str__())
+                print("Errore da connetti(i): "+e.__str__())
 
         else:
+            #DISCONNETTO
             self.arduino_connesso[i]=False
             self.bt_connetti[i]["text"] = "Connetti"
+            self.stopThreadLettura(i)
             try:
                 self.arduino[i].close()
                 self.combo[i]["state"]="readonly"
@@ -328,7 +331,7 @@ class finestraMano():
                 try:
                     self.arduino[i].write(self.entry_comando[i].get().encode())
                 except Exception as e:
-                    print(e.__str__())
+                    print("Errore da invioComando(i)" + e.__str__())
                     self.label_info["text"]="Errore invio comando"
             else:
                 self.label_info["text"]="Inserisci un comando"
@@ -532,7 +535,7 @@ class finestraMano():
             self.entry_nuovo_movimento["text"]=""
             self.label_info_creatore["text"]="File creato"
         except Exception as e:
-            print(e.__str__())
+            print("Errore da creaFile() :"+e.__str__())
             self.label_info_creatore["text"]="Errore creazione file\n"+e.__str__()
 
 
@@ -571,6 +574,10 @@ class finestraMano():
 
     def chiudiTutto(self):
         #TODO: prima di chiudere verificare se c'è qualcosa da salvare
+        for i in range(0,self.flag_thread.__len__()) :
+            if self.flag_thread[i]==True:
+                print("Chiudo il thread i="+str(i))
+                self.startThreadLettura(i)
         self.root.destroy()
 
 
@@ -630,10 +637,32 @@ class finestraMano():
 #---------------- THREAD ------------------------------
 
 
+    def letturaSeriale(self,i):
+        while (self.flag_thread[i]):
+            try:
+                lettura=self.arduino[i].readline().decode("ascii")
+                self.testo_seriale[i].insert(END,lettura)
+                self.testo_seriale[i].see(END)
+
+
+            except Exception as e:
+                self.flag_thread[i]=False #in questo modo elimino il thread dopo il giro
+                print("Errore da THREAD: "+e.__str__())
+
+
+
     def startThreadLettura(self,i):
         if(self.flag_thread[i]==False):
-            #avvio il thread
+            self.flag_thread[i] = True
+            self.thread_lettura[i]=threading.Thread(target= lambda :self.letturaSeriale(i))
+            self.thread_lettura[i].start()
+        else:
             pass
+
+    def stopThreadLettura(self,i):
+        #TODO: prima di root.destroy assicurarsi che tutti i thread siano stati eliminati (join)
+        self.flag_thread[i]=False #in questo modo termina
+
 
 
 
