@@ -643,6 +643,7 @@ class finestraMano():
                 lettura=self.arduino[i].readline().decode("ascii")
                 self.testo_seriale[i].insert(END,lettura)
                 self.testo_seriale[i].see(END)
+                self.analisiComando(i)
 
 
             except Exception as e:
@@ -663,6 +664,21 @@ class finestraMano():
         #TODO: prima di root.destroy assicurarsi che tutti i thread siano stati eliminati (join)
         self.flag_thread[i]=False #in questo modo termina
 
+#------------------- ANALISI COMANDI ----------------
+
+    def analisiaComando(self,i,comando):
+        if(i==0):
+            print("Esecuzione comando " + comando)
+            #Scheda Motori & retroazione
+            pass
+        elif (i==1):
+            print("Esecuzione comando " + comando)
+            #Scheda Pressione
+            pass
+        elif (i==2):
+            print("Esecuzione comando " + comando)
+            #Scheda Guanto
+            pass
 
 
 
