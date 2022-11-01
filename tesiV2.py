@@ -22,11 +22,17 @@ class finestraMano():
 
 
     def __init__(self,titolo="Mano"):
+        #----- ARDUINO --------
         self.arduino_motori = None
         self.arduino_pressione = None
         self.arduino_guanto = None
         self.arduino=[self.arduino_motori,self.arduino_pressione,self.arduino_guanto]
         self.arduino_connesso=[False,False,False] #flag per capire se connesso
+        #------ THREAD ---------
+        self.flag_thread=[False,False,False]
+        self.thread_lettura=[None,None,None]
+
+        #------ TKINTER ------
         self.dim_x = 1650
         self.dim_y = 900
         self.x0 = 20
@@ -35,6 +41,7 @@ class finestraMano():
         self.root.title(titolo)
         self.root.geometry("{}x{}+{}+{}".format(self.dim_x,self.dim_y,self.x0,self.y0))
 
+        #------- INIT ----------
         self.initNotebook()
         self.initTab()
         self.initTabConnessioni(self.tab_connessioni)
@@ -622,6 +629,11 @@ class finestraMano():
 
 #---------------- THREAD ------------------------------
 
+
+    def startThreadLettura(self,i):
+        if(self.flag_thread[i]==False):
+            #avvio il thread
+            pass
 
 
 
