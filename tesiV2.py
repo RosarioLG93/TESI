@@ -596,41 +596,41 @@ class finestraMano():
         #MAPPA CONTROLLO
         self.mano_controllo = Mano()
         # ----- canvas mano --------
-        canvas_mano_controllo = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
-        canvas_mano_controllo.get_tk_widget().place(x=20, y=10)
+        self.canvas_mano_controllo = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
+        self.canvas_mano_controllo.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano_controllo = NavigationToolbar2Tk(canvas_mano_controllo,self.scheda_mappa_controllo)
+        toolbar_mano_controllo = NavigationToolbar2Tk(self.canvas_mano_controllo,self.scheda_mappa_controllo)
         toolbar_mano_controllo.update()
         toolbar_mano_controllo.place(x=10, y=320)
 
         self.mano_controllo.visualizzaPosizioneDesiderata()
-        canvas_mano_controllo.draw()
+        self.canvas_mano_controllo.draw()
 
         #MAPPA RETROAZIONE
         self.mano_retroazione = Mano('b')
         # ----- canvas mano --------
-        canvas_mano_retroazione = FigureCanvasTkAgg(self.mano_retroazione.getFig(), master=self.scheda_mappa_retroazione)
-        canvas_mano_retroazione.get_tk_widget().place(x=20, y=10)
+        self.canvas_mano_retroazione = FigureCanvasTkAgg(self.mano_retroazione.getFig(), master=self.scheda_mappa_retroazione)
+        self.canvas_mano_retroazione.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano_retroazione = NavigationToolbar2Tk(canvas_mano_retroazione, self.scheda_mappa_retroazione)
+        toolbar_mano_retroazione = NavigationToolbar2Tk(self.canvas_mano_retroazione, self.scheda_mappa_retroazione)
         toolbar_mano_retroazione.update()
         toolbar_mano_retroazione.place(x=10, y=320)
 
         self.mano_retroazione.visualizzaPosizioneDesiderata()
-        canvas_mano_retroazione.draw()
+        self.canvas_mano_retroazione.draw()
 
         #MAPPA PRESSIONE
         self.mano_pressione = ManoPressione("Pressione")
         # ----- canvas mano --------
-        canvas_mano_pressione = FigureCanvasTkAgg(self.mano_pressione.getFig(),master=self.scheda_mappa_pressione)
-        canvas_mano_pressione.get_tk_widget().place(x=20, y=10)
+        self.canvas_mano_pressione = FigureCanvasTkAgg(self.mano_pressione.getFig(),master=self.scheda_mappa_pressione)
+        self.canvas_mano_pressione.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano_pressione = NavigationToolbar2Tk(canvas_mano_pressione, self.scheda_mappa_pressione)
+        toolbar_mano_pressione = NavigationToolbar2Tk(self.canvas_mano_pressione, self.scheda_mappa_pressione)
         toolbar_mano_pressione.update()
         toolbar_mano_pressione.place(x=10, y=320)
 
         #self.mano_pressione.visualizzaPosizioneDesiderata()
-        canvas_mano_pressione.draw()
+        self.canvas_mano_pressione.draw()
 
 
 
@@ -670,6 +670,20 @@ class finestraMano():
         if(i==0):
             print("Esecuzione comando " + comando)
             #Scheda Motori & retroazione
+             #TEST
+
+            angolo=[0,0,0]
+            comando_ricevuto = comando.split("|")
+            angolo_ricevuto = comando_ricevuto[0].split(":")
+            angolo[0] = angolo_ricevuto[0][1]
+            angolo[1] =angolo_ricevuto[1][1]
+            angolo[2] =angolo_ricevuto[2][1]
+            print(angolo_ricevuto)
+
+            self.mano_retroazione.setAngolo(1, 0, angolo[0])
+            self.mano_retroazione.setAngolo(1, 1, angolo[1])
+            self.mano_retroazione.setAngolo(1, 2, angolo[2])
+
             pass
         elif (i==1):
             print("Esecuzione comando " + comando)
