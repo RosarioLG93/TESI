@@ -216,7 +216,6 @@ class finestraMano():
                 self.combo[i]["state"] = DISABLED
                 self.bt_connetti[i]["text"]="Disconnetti"
                 self.arduino_connesso[i]=True
-                #TODO: startThreadLettura(i)
                 self.startThreadLettura(i)
             except Exception as e:
                 self.label_info["text"]="Errore connessione "+self.combo[i].get()
@@ -231,7 +230,6 @@ class finestraMano():
                 self.arduino[i].close()
                 self.combo[i]["state"]="readonly"
                 self.label_info["text"]="Scheda disconnessa"
-                # TODO: stopThreadLettura(i)
             except:
                 self.label_info["text"] = "Errore disconnessione"
 
@@ -291,7 +289,6 @@ class finestraMano():
         self.entry_comando.insert(2, Entry(self.scheda_seriale[2], width=20))
         self.entry_comando[2].place(x=10, y=10)
         #BUTTON
-        #TODO: impletare invia() per le schede seriali
         Button(self.scheda_seriale[0], text="Invia", command=lambda:self.inviaComando(0)).place(x=160, y=5)
         Button(self.scheda_seriale[1], text="Invia", command=lambda:self.inviaComando(1)).place(x=160, y=5)
         Button(self.scheda_seriale[2], text="Invia", command=lambda: self.inviaComando(2)).place(x=160, y=5)
@@ -315,10 +312,9 @@ class finestraMano():
         self.testo_seriale[1]["yscrollcommand"] = self.scroll_seriale[1].set
         self.testo_seriale[2]["yscrollcommand"] = self.scroll_seriale[2].set
         #BIND ENTRY
-        #TODO: bind entry con parametro event
-        self.entry_comando[0].bind("<Return>", lambda event: {}) #la funzione richiede event
-        self.entry_comando[1].bind("<Return>", lambda event: {})
-        self.entry_comando[2].bind("<Return>", lambda event: {})
+        self.entry_comando[0].bind("<Return>", lambda event: self.inviaComando(0)) #la funzione richiede event
+        self.entry_comando[1].bind("<Return>", lambda event: self.inviaComando(1))
+        self.entry_comando[2].bind("<Return>", lambda event: self.inviaComando(2))
 
     #--------- INVIA COMANDO --------
 
@@ -335,7 +331,7 @@ class finestraMano():
                     self.label_info["text"]="Errore invio comando"
             else:
                 self.label_info["text"]="Inserisci un comando"
-
+            self.entry_comando[i].delete(0,END)
         else:
             #notifica che arduino[i] non è connesso
             self.label_info["text"]="Errore: Arduino non connesso"
@@ -438,7 +434,6 @@ class finestraMano():
 
     def aggiungiMicromovimento(self,event=None):#event mi serve per il bind, metto None se il metodo non è chiamato da bind
         #entry_comando_creatore
-        # TODO:aggiungiMicromovimento
         if(self.entry_comando_creatore.get().strip()==""):
             self.label_info_creatore["text"]="Inserisci comando"
         else:
@@ -592,45 +587,44 @@ class finestraMano():
         self.scheda_mappa_pressione = LabelFrame(self.tab_mappa_pressione, text="Pressione", width=360, height=400)
         self.scheda_mappa_pressione.place(x=5, y=10)
 
-        #TODO: inserimenti mappe
         #MAPPA CONTROLLO
         self.mano_controllo = Mano()
         # ----- canvas mano --------
-        canvas_mano_controllo = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
-        canvas_mano_controllo.get_tk_widget().place(x=20, y=10)
+        self.canvas_mano_controllo = FigureCanvasTkAgg(self.mano_controllo.getFig(),master=self.scheda_mappa_controllo)
+        self.canvas_mano_controllo.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano_controllo = NavigationToolbar2Tk(canvas_mano_controllo,self.scheda_mappa_controllo)
+        toolbar_mano_controllo = NavigationToolbar2Tk(self.canvas_mano_controllo,self.scheda_mappa_controllo)
         toolbar_mano_controllo.update()
         toolbar_mano_controllo.place(x=10, y=320)
 
         self.mano_controllo.visualizzaPosizioneDesiderata()
-        canvas_mano_controllo.draw()
+        self.canvas_mano_controllo.draw()
 
         #MAPPA RETROAZIONE
         self.mano_retroazione = Mano('b')
         # ----- canvas mano --------
-        canvas_mano_retroazione = FigureCanvasTkAgg(self.mano_retroazione.getFig(), master=self.scheda_mappa_retroazione)
-        canvas_mano_retroazione.get_tk_widget().place(x=20, y=10)
+        self.canvas_mano_retroazione = FigureCanvasTkAgg(self.mano_retroazione.getFig(), master=self.scheda_mappa_retroazione)
+        self.canvas_mano_retroazione.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano_retroazione = NavigationToolbar2Tk(canvas_mano_retroazione, self.scheda_mappa_retroazione)
+        toolbar_mano_retroazione = NavigationToolbar2Tk(self.canvas_mano_retroazione, self.scheda_mappa_retroazione)
         toolbar_mano_retroazione.update()
         toolbar_mano_retroazione.place(x=10, y=320)
 
         self.mano_retroazione.visualizzaPosizioneDesiderata()
-        canvas_mano_retroazione.draw()
+        self.canvas_mano_retroazione.draw()
 
         #MAPPA PRESSIONE
         self.mano_pressione = ManoPressione("Pressione")
         # ----- canvas mano --------
-        canvas_mano_pressione = FigureCanvasTkAgg(self.mano_pressione.getFig(),master=self.scheda_mappa_pressione)
-        canvas_mano_pressione.get_tk_widget().place(x=20, y=10)
+        self.canvas_mano_pressione = FigureCanvasTkAgg(self.mano_pressione.getFig(),master=self.scheda_mappa_pressione)
+        self.canvas_mano_pressione.get_tk_widget().place(x=20, y=10)
 
-        toolbar_mano_pressione = NavigationToolbar2Tk(canvas_mano_pressione, self.scheda_mappa_pressione)
+        toolbar_mano_pressione = NavigationToolbar2Tk(self.canvas_mano_pressione, self.scheda_mappa_pressione)
         toolbar_mano_pressione.update()
         toolbar_mano_pressione.place(x=10, y=320)
 
         #self.mano_pressione.visualizzaPosizioneDesiderata()
-        canvas_mano_pressione.draw()
+        self.canvas_mano_pressione.draw()
 
 
 
@@ -643,7 +637,7 @@ class finestraMano():
                 lettura=self.arduino[i].readline().decode("ascii")
                 self.testo_seriale[i].insert(END,lettura)
                 self.testo_seriale[i].see(END)
-                self.analisiComando(i)
+                self.analisiComando(i,lettura)
 
 
             except Exception as e:
@@ -666,11 +660,31 @@ class finestraMano():
 
 #------------------- ANALISI COMANDI ----------------
 
-    def analisiaComando(self,i,comando):
+    def analisiComando(self,i,comando):
         if(i==0):
             print("Esecuzione comando " + comando)
             #Scheda Motori & retroazione
-            pass
+             #TEST
+
+            try:
+                angolo=[0,0,0]
+                i=0
+                comando_ricevuto = comando.split("|")
+                print(comando)
+                for x in comando_ricevuto:
+                    angolo_ricevuto=x.split(":")
+                    angolo[i]=angolo_ricevuto[1]
+                    print("angolo i:" +angolo[i])
+                    i=i+1
+
+                print(angolo)
+                #TODO: da sistemare errori simili : ['stop\r\n', 0, 0]
+                self.mano_retroazione.setAngolo(1, 0, angolo[0])
+                self.mano_retroazione.setAngolo(1, 1, angolo[1])
+                self.mano_retroazione.setAngolo(1, 2, angolo[2])
+            except:
+                pass
+
         elif (i==1):
             print("Esecuzione comando " + comando)
             #Scheda Pressione
