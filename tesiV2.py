@@ -57,6 +57,7 @@ class finestraMano():
         self.initCartellaLavoro()
         self.disabilitaPulsanti() #in questo modo devo necessariamente aprire un file per abiltiare i comandi
 
+    #------------------------- INIT MENU -----------------------
 
     def initMenu(self):
         self.menu_bar=Menu(self.root)
@@ -66,7 +67,7 @@ class finestraMano():
         self.menu_bar.add_cascade(menu=self.menu_info,label="Info")
 
         self.menu_strumenti.add_command(label="Registrazione",command=self.apriRegistratore)
-        self.menu_strumenti.add_command(label="Impostazioni", command=lambda:())
+        self.menu_strumenti.add_command(label="Impostazioni", command=self.apriImpostazioni())
         self.menu_strumenti.add_command(label="Configura mappa", command=lambda:())
         self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda:())
 
@@ -74,6 +75,24 @@ class finestraMano():
         self.menu_info.add_command(label="Protocollo arduino", command=lambda:())
 
         self.root["menu"] = self.menu_bar
+
+
+    #------------------------ IMPOSTAZIONI-----------------------------
+    def apriImpostazioni(self):
+        self.root_impostazioni=Toplevel(self.root)
+        self.root_impostazioni.geometry("800x600+400+200")
+        self.root_impostazioni.title("Impostazioni")
+        self.root_impostazioni.resizable(False,False)
+        self.root_impostazioni.attributes("-topmost",False)
+        self.frame_impostazioni=LabelFrame(self.root_impostazioni,text="Impostazioni",width=400,height=500)
+        self.frame_impostazioni.place(x=20,y=20)
+        self.root_impostazioni.protocol("WM_DELETE_WINDOW", self.chiudiImpostazioni)  # per sicurezza
+        self.menu_strumenti.entryconfigure(1, state=DISABLED)
+
+
+    def chiudiImpostazioni(self):
+        self.menu_strumenti.entryconfigure(1, state=ACTIVE)
+        self.root_impostazioni.destroy()
 
     #-----------------REGISTRA MOVIMENTO ----------------------
     def apriRegistratore(self):
