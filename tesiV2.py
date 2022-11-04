@@ -57,6 +57,7 @@ class finestraMano():
         self.initCartellaLavoro()
         self.disabilitaPulsanti() #in questo modo devo necessariamente aprire un file per abiltiare i comandi
 
+    #------------------------- INIT MENU -----------------------
 
     def initMenu(self):
         self.menu_bar=Menu(self.root)
@@ -66,7 +67,7 @@ class finestraMano():
         self.menu_bar.add_cascade(menu=self.menu_info,label="Info")
 
         self.menu_strumenti.add_command(label="Registrazione",command=self.apriRegistratore)
-        self.menu_strumenti.add_command(label="Impostazioni", command=lambda:())
+        self.menu_strumenti.add_command(label="Impostazioni", command=self.apriImpostazioni)
         self.menu_strumenti.add_command(label="Configura mappa", command=lambda:())
         self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda:())
 
@@ -74,6 +75,55 @@ class finestraMano():
         self.menu_info.add_command(label="Protocollo arduino", command=lambda:())
 
         self.root["menu"] = self.menu_bar
+
+
+    #------------------------ IMPOSTAZIONI-----------------------------
+    def apriImpostazioni(self):
+        self.root_impostazioni=Toplevel(self.root)
+        self.root_impostazioni.geometry("800x600+400+200")
+        self.root_impostazioni.title("Impostazioni")
+        self.root_impostazioni.resizable(False,False)
+        self.root_impostazioni.attributes("-topmost",False)
+        self.frame_impostazioni=LabelFrame(self.root_impostazioni,text="Impostazioni",width=400,height=500)
+        self.frame_impostazioni.place(x=20,y=20)
+        self.root_impostazioni.protocol("WM_DELETE_WINDOW", self.chiudiImpostazioni)  # per sicurezza
+        self.menu_strumenti.entryconfigure(1, state=DISABLED)
+        #------------- notebook / tab ----------
+        self.notebook_impostazioni=ttk.Notebook(self.root_impostazioni,width=780,height=560)
+        self.notebook_impostazioni.place(x=10,y=10)
+        self.tab_impostazioni_controllo=Frame(self.notebook_impostazioni)
+        self.tab_impostazioni_pressione=Frame(self.notebook_impostazioni)
+        self.tab_impostazioni_guanto=Frame(self.notebook_impostazioni)
+        self.notebook_impostazioni.add(self.tab_impostazioni_controllo,text="Controllo & Retroazione")
+        self.notebook_impostazioni.add(self.tab_impostazioni_pressione,text="Pressione")
+        self.notebook_impostazioni.add(self.tab_impostazioni_guanto,text="Guanto")
+
+        #---label info impostazioni
+        Label(self.tab_impostazioni_controllo,text="INFO:").place(x=10,y=500)
+        self.label_info_impostazioni=Label(self.tab_impostazioni_controllo,text="-----")
+        self.label_info_impostazioni.place(x=10,y=530)
+
+        #------------- button ---------
+        Button(self.tab_impostazioni_controllo,text="Carica",command=self.caricaValoriEeprom).place(x=10,y=10)
+        Button(self.tab_impostazioni_controllo, text="Aggiorna", command=self.caricaValoriEeprom).place(x=10, y=40)
+        self.valoreMax=IntVar()
+        self.spin1=ttk.Spinbox(self.tab_impostazioni_controllo,from_=1, to=250, textvariable=self.valoreMax)
+        self.spin1.place(x=50, y=10)
+        self.spin1.config(state=DISABLED)
+
+    def caricaValoriEeprom(self):
+        #verificare che sia connesso prima
+        self.spin1.config(state=ACTIVE)
+        pass
+
+    def salvaValoriEeprom(self):
+        #verificare la corretteza dei valori inseririt
+        pass
+
+
+    def chiudiImpostazioni(self):
+        self.menu_strumenti.entryconfigure(1, state=ACTIVE)
+        self.root_impostazioni.destroy()
 
     #-----------------REGISTRA MOVIMENTO ----------------------
     def apriRegistratore(self):
@@ -105,6 +155,7 @@ class finestraMano():
         self.tab_test = Frame(self.notebook_test)
         self.notebook_test.add(self.tab_test, text="Mov")
         self.notebook_test.place(x=380,y=10)
+
 
 
 
