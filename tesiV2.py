@@ -94,22 +94,46 @@ class finestraMano():
         self.tab_impostazioni_controllo=Frame(self.notebook_impostazioni)
         self.tab_impostazioni_pressione=Frame(self.notebook_impostazioni)
         self.tab_impostazioni_guanto=Frame(self.notebook_impostazioni)
+        self.tab_impostazioni_misure=Frame(self.notebook_impostazioni)
         self.notebook_impostazioni.add(self.tab_impostazioni_controllo,text="Controllo & Retroazione")
         self.notebook_impostazioni.add(self.tab_impostazioni_pressione,text="Pressione")
         self.notebook_impostazioni.add(self.tab_impostazioni_guanto,text="Guanto")
+        self.notebook_impostazioni.add(self.tab_impostazioni_misure, text="Misure mano")
+        self.initSpinControllo(self.tab_impostazioni_controllo)
 
+    def initSpinControllo(self,tab):
         #---label info impostazioni
-        Label(self.tab_impostazioni_controllo,text="INFO:").place(x=10,y=500)
-        self.label_info_impostazioni=Label(self.tab_impostazioni_controllo,text="-----")
+        Label(tab,text="INFO:").place(x=10,y=500)
+        self.label_info_impostazioni=Label(tab,text="-----")
         self.label_info_impostazioni.place(x=10,y=530)
 
         #------------- button ---------
-        Button(self.tab_impostazioni_controllo,text="Carica",command=self.caricaValoriEeprom).place(x=10,y=10)
-        Button(self.tab_impostazioni_controllo, text="Aggiorna", command=self.caricaValoriEeprom).place(x=10, y=40)
+        Button(tab,text="Carica",command=self.caricaValoriEeprom).place(x=10,y=10)
+        Button(tab, text="Aggiorna", command=self.caricaValoriEeprom).place(x=10, y=40)
         self.valoreMax=IntVar()
-        self.spin1=ttk.Spinbox(self.tab_impostazioni_controllo,from_=1, to=250, textvariable=self.valoreMax)
+        self.spin1=ttk.Spinbox(tab,from_=1, to=250, textvariable=self.valoreMax)
         self.spin1.place(x=50, y=10)
         self.spin1.config(state=DISABLED)
+
+        # da sistemare!!!
+        #utile per poter chiamare .set() sulla variabile di tipo IntVar()
+        self.tetaMin = [[IntVar()*3], [IntVar()*3], [IntVar()*3]]
+        self.tetaMax = [[], [], []]
+        self.fiMin = [[], [], []]
+        self.fiMax = [[], [], []]
+
+        self.spinTetaMin=[[],[],[]]
+        self.spinTetaMax = [[], [], []]
+        self.spinFiMin = [[], [], []]
+        self.spinFiMax = [[], [], []]
+
+        for i in range(0,3):
+            #TODO: da sistemare
+            self.spinTetaMin[i].append(ttk.Spinbox(tab,from_=1,to=250))
+            pass
+
+
+
 
     def caricaValoriEeprom(self):
         #verificare che sia connesso prima
