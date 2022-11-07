@@ -262,7 +262,7 @@ class finestraMano():
         if(self.arduino_connesso[i]==False):
             #connetti
             try:
-                self.arduino[i]=serial.Serial(port=self.combo[i].get(),baudrate=9600,stopbits=1,bytesize=8)
+                self.arduino[i]=serial.Serial(port=self.combo[i].get(),baudrate=19200,stopbits=1,bytesize=8)
                 self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
                 self.combo[i]["state"] = DISABLED
                 self.bt_connetti[i]["text"]="Disconnetti"
@@ -733,6 +733,7 @@ class finestraMano():
                 self.mano_retroazione.setAngolo(1, 0, angolo[0])
                 self.mano_retroazione.setAngolo(1, 1, angolo[1])
                 self.mano_retroazione.setAngolo(1, 2, angolo[2])
+                self.canvas_mano_retroazione.draw()
             except:
                 pass
 
