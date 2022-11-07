@@ -115,9 +115,9 @@ class finestraMano():
         self.spin1.place(x=50, y=10)
         self.spin1.config(state=DISABLED)
 
-        # da sistemare!!!
+
         #utile per poter chiamare .set() sulla variabile di tipo IntVar()
-        self.tetaMin = [[IntVar()*3], [IntVar()*3], [IntVar()*3]]
+        self.tetaMin = [[IntVar()]*3]*5
         self.tetaMax = [[], [], []]
         self.fiMin = [[], [], []]
         self.fiMax = [[], [], []]
