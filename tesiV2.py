@@ -119,18 +119,23 @@ class finestraMano():
         self.spinFiMin = [[] * 3] * 5
         self.spinFiMax = [[] * 3] * 5
 
-        self.label_frame = []
+        self.label_frame_spin = []
         nome = {0: "Pollice", 1: "Indice", 2: "Medio", 3: "Anulare", 4: "Mignolo"}
         for i in range(0, 5):
-            self.label_frame.append(LabelFrame(tab, text=nome[i], width=100, height=400))
-            self.label_frame[i].place(x=20 + (130 * i), y=80)
+            self.label_frame_spin.append(LabelFrame(tab,text=nome[i], width=100, height=400))
+            self.label_frame_spin[i].place(x=20 + (130 * i), y=80)
 
 
-        for j in range(0, 5):
-            for i in range(0, 3):
-                self.spinTetaMin[j].append(ttk.Spinbox(self.label_frame[j], from_=-30, to=200, width=10, state=DISABLED))
-                self.spinTetaMin[j][i].place(x=10, y=(i * 30) + 10)
-                print("j:"+str(j)+"   j:"+str(j))
+
+
+        for j in range(0,5):
+            for i in range(0,3):
+                self.spinTetaMin[j].append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10 ))#state=DISABLED)
+                self.spinTetaMin[j][i].place(x=10 +(j*10), y=(i * 30) + 10)
+                self.spinTetaMin[j][i].set(j)
+                #self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
+            print(j)
+
 
     def caricaValoriEeprom(self):
         # verificare che sia connesso prima
