@@ -109,32 +109,60 @@ class finestraMano():
         Button(tab, text="Aggiorna", command=self.caricaValoriEeprom).place(x=10, y=40)
 
         # utile per poter chiamare .set() sulla variabile di tipo IntVar()
-        self.tetaMin = [[] * 3] * 5
-        self.tetaMax = [[] * 3] * 5
-        self.fiMin = [[] * 3] * 5
-        self.fiMax = [[] * 3] * 5
+        self.tetaMin = [[] ,[],[],[],[]] # ATTENZIONE: [[]*3] COPIA GLI INDIRIZZI!!!!!!!! (grosso problema)
+        self.tetaMax = [[] ,[],[],[],[]]
+        self.fiMin = [[] ,[],[],[],[]]
+        self.fiMax = [[] ,[],[],[],[]]
 
-        self.spinTetaMin = [[] * 3] * 5
-        self.spinTetaMax = [[] * 3] * 5
-        self.spinFiMin = [[] * 3] * 5
-        self.spinFiMax = [[] * 3] * 5
+        self.spinTetaMin = [[] ,[],[],[],[]]
+        self.spinTetaMax = [[] ,[],[],[],[]]
+        self.spinFiMin = [ ]
+        self.spinFiMax = [ ]
+
+
 
         self.label_frame_spin = []
-        nome = {0: "Pollice", 1: "Indice", 2: "Medio", 3: "Anulare", 4: "Mignolo"}
+        nome = {0: "Pollice [0]", 1: "Indice[1]", 2: "Medio[2]", 3: "Anulare[3]", 4: "Mignolo[4]"}
         for i in range(0, 5):
             self.label_frame_spin.append(LabelFrame(tab,text=nome[i], width=100, height=400))
-            self.label_frame_spin[i].place(x=20 + (130 * i), y=80)
-
-
-
+            self.label_frame_spin[i].place(x=130 + (130 * i), y=80)
 
         for j in range(0,5):
             for i in range(0,3):
                 self.spinTetaMin[j].append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10 ))#state=DISABLED)
-                self.spinTetaMin[j][i].place(x=10 +(j*10), y=(i * 30) + 10)
+                self.spinTetaMin[j][i].place(x=10, y=(i * 90) + 40)
                 self.spinTetaMin[j][i].set(j)
                 #self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
-            print(j)
+
+        for j in range(0, 5):
+            for i in range(0, 3):
+                self.spinTetaMax[j].append( ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10))  # state=DISABLED)
+                self.spinTetaMax[j][i].place(x=10, y=(i * 90) + 10)
+                self.spinTetaMax[j][i].set(j)
+                # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
+
+        for j in range(0, 5):
+                self.spinFiMin.append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10))  # state=DISABLED)
+                self.spinFiMin[j].place(x=10, y= 340)
+                self.spinFiMin[j].set(j)
+                # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
+
+        for j in range(0, 5):
+            self.spinFiMax.append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10))  # state=DISABLED)
+            self.spinFiMax[j].place(x=10, y=310)
+            self.spinFiMax[j].set(j)
+            # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
+
+
+        #LABEL TETA
+        for j in range(0,3):
+            Label(tab,text="teta max["+str(2-j)+"]").place(x=30,y=105+(j*90))
+            Label(tab, text="teta min[" + str(2-j) + "]").place(x=30, y=135 + (j * 90))
+
+        #LABEL FI
+        Label(tab, text="fi max").place(x=50,y=405)
+        Label(tab, text="fi min").place(x=50, y=435)
+
 
 
     def caricaValoriEeprom(self):
