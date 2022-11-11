@@ -105,8 +105,8 @@ class finestraMano():
         self.label_info_impostazioni.place(x=10, y=530)
 
         # ------------- button ---------
-        Button(tab, text="Carica", command=self.caricaValoriEeprom).place(x=10, y=10)
-        Button(tab, text="Aggiorna", command=self.caricaValoriEeprom).place(x=10, y=40)
+        Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
+        Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
 
         # utile per poter chiamare .set() sulla variabile di tipo IntVar()
         self.tetaMin = [[] ,[],[],[],[]] # ATTENZIONE: [[]*3] COPIA GLI INDIRIZZI!!!!!!!! (grosso problema)
@@ -165,17 +165,45 @@ class finestraMano():
 
 
 
-    def caricaValoriEeprom(self):
-        # verificare che sia connesso prima
-        # self.spin1.config(state=ACTIVE)
-        pass
+    def leggiValoriEeprom(self):
+        for j in range(0, 5):
+            for i in range(0, 3):
+                self.spinTetaMin[j][i].set(j)
+
+        for j in range(0, 5):
+            for i in range(0, 3):
+                self.spinTetaMax[j][i].set(j)
+
+        for j in range(0, 5):
+            self.spinFiMin[j].set(j)
+
+        for j in range(0, 5):
+            self.spinFiMax[j].set(j)
+
+
 
     def salvaValoriEeprom(self):
-        # verificare la corretteza dei valori inseririt
-        pass
+        for j in range(0, 5):
+            for i in range(0, 3):
+                #self.spinTetaMin[j][i].set(j)
+                pass
+
+        for j in range(0, 5):
+            for i in range(0, 3):
+                #self.spinTetaMax[j][i].set(j)
+                pass
+        for j in range(0, 5):
+            #self.spinFiMin[j].set(j)
+            pass
+        for j in range(0, 5):
+            #self.spinFiMax[j].set(j)
+            pass
+
+
+
 
     def chiudiImpostazioni(self):
-        self.menu_strumenti.entryconfigure(1, state=ACTIVE)
+        self.menu_strumenti.entryconfigure(1, state=ACTIVE) #riattivo il menu
         self.root_impostazioni.destroy()
 
     # -----------------REGISTRA MOVIMENTO ----------------------
