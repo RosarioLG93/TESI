@@ -127,37 +127,37 @@ class finestraMano():
             self.label_frame_spin.append(LabelFrame(tab,text=nome[i], width=100, height=400))
             self.label_frame_spin[i].place(x=130 + (130 * i), y=80)
 
-        for j in range(0,5):
-            for i in range(0,3):
-                self.spinTetaMin[j].append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10 ))#state=DISABLED)
-                self.spinTetaMin[j][i].place(x=10, y=(i * 90) + 40)
-                self.spinTetaMin[j][i].set(j)
+        for i in range(0,5):
+            for j in range(0,3):
+                self.spinTetaMin[i].append(ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10 ))#state=DISABLED)
+                self.spinTetaMin[i][j].place(x=10, y=(j * 90) + 40)
+                self.spinTetaMin[i][j].set((3*i)+j)
                 #self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
-        for j in range(0, 5):
-            for i in range(0, 3):
-                self.spinTetaMax[j].append( ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10))  # state=DISABLED)
-                self.spinTetaMax[j][i].place(x=10, y=(i * 90) + 10)
-                self.spinTetaMax[j][i].set(j)
+        for i in range(0, 5):
+            for j in range(0, 3):
+                self.spinTetaMax[i].append( ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10))  # state=DISABLED)
+                self.spinTetaMax[i][j].place(x=10, y=(j * 90) + 10)
+                self.spinTetaMax[i][j].set(15+(3*i)+j)
                 # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
-        for j in range(0, 5):
-                self.spinFiMin.append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10))  # state=DISABLED)
-                self.spinFiMin[j].place(x=10, y= 340)
-                self.spinFiMin[j].set(j)
+        for i in range(0, 5):
+                self.spinFiMin.append(ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10))  # state=DISABLED)
+                self.spinFiMin[i].place(x=10, y= 340)
+                self.spinFiMin[i].set(30+i)
                 # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
-        for j in range(0, 5):
-            self.spinFiMax.append(ttk.Spinbox(self.label_frame_spin[j], from_=-30, to=200, width=10))  # state=DISABLED)
-            self.spinFiMax[j].place(x=10, y=310)
-            self.spinFiMax[j].set(j)
+        for i in range(0, 5):
+            self.spinFiMax.append(ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10))  # state=DISABLED)
+            self.spinFiMax[i].place(x=10, y=310)
+            self.spinFiMax[i].set(35+i)
             # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
 
         #LABEL TETA
         for j in range(0,3):
-            Label(tab,text="teta max["+str(2-j)+"]").place(x=30,y=105+(j*90))
-            Label(tab, text="teta min[" + str(2-j) + "]").place(x=30, y=135 + (j * 90))
+            Label(tab,text="teta max["+str(j)+"]").place(x=30,y=105+(j*90))
+            Label(tab, text="teta min[" + str(j) + "]").place(x=30, y=135 + (j * 90))
 
         #LABEL FI
         Label(tab, text="fi max").place(x=50,y=405)
@@ -166,25 +166,33 @@ class finestraMano():
 
 
     def leggiValoriEeprom(self):
-        for j in range(0, 5):
-            for i in range(0, 3):
-                self.spinTetaMin[j][i].set(j)
+        for i in range(0, 5):
+            for j in range(0, 3):
+                self.inviaComando(0,"read:"+str((3*i)+j))
 
-        for j in range(0, 5):
-            for i in range(0, 3):
-                self.spinTetaMax[j][i].set(j)
+                #self.spinTetaMin[i][j].set((3*i)+j)
 
-        for j in range(0, 5):
-            self.spinFiMin[j].set(j)
+        for i in range(0, 5):
+            for j in range(0, 3):
+                self.inviaComando(0,"read:"+str(15+(3*i)+j))
+                #self.spinTetaMax[i][j].set(15+(3*i)+j)
 
-        for j in range(0, 5):
-            self.spinFiMax[j].set(j)
+        for i in range(0, 5):
+            self.inviaComando(0, "read:" + str(30+i))
+            #self.spinFiMin[i].set(30+i)
+
+        for i in range(0, 5):
+            self.inviaComando(0, "read:" + str(35 + i))
+            #self.spinFiMax[i].set(35+i)
 
 
 
     def salvaValoriEeprom(self):
+        #tetaMin
         for j in range(0, 5):
             for i in range(0, 3):
+                #tetaMin[5][3]
+                #self.inviaComando(0,"write:"+str((3*j)+i)+":"+str(self.spinTetaMin[j][i]))
                 #self.spinTetaMin[j][i].set(j)
                 pass
 
@@ -333,7 +341,7 @@ class finestraMano():
         if (self.arduino_connesso[i] == False):
             # connetti
             try:
-                self.arduino[i] = serial.Serial(port=self.combo[i].get(), baudrate=19200, stopbits=1, bytesize=8)
+                self.arduino[i] = serial.Serial(port=self.combo[i].get(), baudrate=9600, stopbits=1, bytesize=8)
                 self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
                 self.combo[i]["state"] = DISABLED
                 self.bt_connetti[i]["text"] = "Disconnetti"
@@ -438,7 +446,7 @@ class finestraMano():
 
     # --------- INVIA COMANDO --------
 
-    def inviaComando(self, i):
+    def inviaComando(self, i,comando=""):
         print("Invio comando di entry_comando[" + str(i) + "]\nComando da inviare: " + self.entry_comando[i].get())
         if (self.arduino_connesso[i] == True):
             # verifico la presenza di un comando
@@ -450,7 +458,14 @@ class finestraMano():
                     print("Errore da invioComando(i)" + e.__str__())
                     self.label_info["text"] = "Errore invio comando"
             else:
-                self.label_info["text"] = "Inserisci un comando"
+                if(comando!=""):
+                    try:
+                        self.arduino[i].write(self.entry_comando[i].get().encode())
+                    except Exception as e:
+                        print("Errore da invioComando(i)" + e.__str__())
+                        self.label_info["text"] = "Errore invio comando"
+                else:
+                    self.label_info["text"] = "Inserisci un comando"
             self.entry_comando[i].delete(0, END)
         else:
             # notifica che arduino[i] non è connesso
@@ -766,6 +781,7 @@ class finestraMano():
     # ------------------- ANALISI COMANDI ----------------
 
     def analisiComando(self, i, comando):
+        #PER LA RETROAZIONE (SPLIT ANGOLI)
         if (i == 0):
             print("Esecuzione comando " + comando)
             # Scheda Motori & retroazione
