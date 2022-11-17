@@ -13,7 +13,7 @@ from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from ManoV3 import Mano
 from ManoPressione import ManoPressione
-
+from PIL import ImageTk, Image
 
 # from pressione import Pressione
 
@@ -46,6 +46,7 @@ class finestraMano():
         self.initTabConnessioni(self.tab_connessioni)
         self.initTabSeriale(self.tab_seriale)
         self.initTabMovimenti(self.tab_creatore_1)
+        self.initTabControllo()
         self.initPusantiGestionMovimento(self.tab_creatore_1)
         self.initPulsantiAcquisizioneMovimento(self.tab_creatore_1)
         self.initMenu()
@@ -61,47 +62,47 @@ class finestraMano():
         self.menu_bar = Menu(self.root)
         self.menu_info = Menu(self.menu_bar, tearoff=0)
         self.menu_strumenti = Menu(self.menu_bar, tearoff=0)
-        self.menu_bar.add_cascade(menu=self.menu_strumenti, label="Strumenti")
+        self.menu_bar.add_cascade(menu=self.menu_strumenti, label="Opzioni")
         self.menu_bar.add_cascade(menu=self.menu_info, label="Info")
 
-        self.menu_strumenti.add_command(label="Registrazione", command=self.apriRegistratore)
+        #self.menu_strumenti.add_command(label="Registrazione", command=self.apriRegistratore)
         self.menu_strumenti.add_command(label="Impostazioni", command=self.apriImpostazioni)
-        self.menu_strumenti.add_command(label="Configura mappa", command=lambda: ())
-        self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda: ())
+        #self.menu_strumenti.add_command(label="Configura mappa", command=lambda: ())
+        #self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda: ())
 
         self.menu_info.add_command(label="Manuale", command=lambda: ())
-        self.menu_info.add_command(label="Protocollo arduino", command=lambda: ())
+        #self.menu_info.add_command(label="Protocollo arduino", command=lambda: ())
 
         self.root["menu"] = self.menu_bar
 
     # ------------------------ IMPOSTAZIONI-----------------------------
     def apriImpostazioni(self):
         self.root_impostazioni = Toplevel(self.root)
-        self.root_impostazioni.geometry("800x600+400+200")
+        self.root_impostazioni.geometry("1200x600+400+200")
         self.root_impostazioni.title("Impostazioni")
         self.root_impostazioni.resizable(False, False)
         self.root_impostazioni.attributes("-topmost", False)
-        self.frame_impostazioni = LabelFrame(self.root_impostazioni, text="Impostazioni", width=400, height=500)
-        self.frame_impostazioni.place(x=20, y=20)
+        #self.frame_impostazioni = LabelFrame(self.root_impostazioni, text="Impostazioni", width=1100, height=500)
+        #self.frame_impostazioni.place(x=20, y=20)
         self.root_impostazioni.protocol("WM_DELETE_WINDOW", self.chiudiImpostazioni)  # per sicurezza
         self.menu_strumenti.entryconfigure(1, state=DISABLED)
         # ------------- notebook / tab ----------
-        self.notebook_impostazioni = ttk.Notebook(self.root_impostazioni, width=780, height=560)
+        self.notebook_impostazioni = ttk.Notebook(self.root_impostazioni, width=1180, height=560)
         self.notebook_impostazioni.place(x=10, y=10)
         self.tab_impostazioni_controllo = Frame(self.notebook_impostazioni)
         self.tab_impostazioni_pressione = Frame(self.notebook_impostazioni)
         self.tab_impostazioni_guanto = Frame(self.notebook_impostazioni)
-        self.tab_impostazioni_misure = Frame(self.notebook_impostazioni)
-        self.notebook_impostazioni.add(self.tab_impostazioni_controllo, text="Controllo & Retroazione")
+        self.tab_impostazioni_home = Frame(self.notebook_impostazioni)
+        self.notebook_impostazioni.add(self.tab_impostazioni_controllo, text="Angoli Min/Max EEPROM")
         self.notebook_impostazioni.add(self.tab_impostazioni_pressione, text="Pressione")
-        self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto")
-        self.notebook_impostazioni.add(self.tab_impostazioni_misure, text="Misure mano")
+        self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
+        self.notebook_impostazioni.add(self.tab_impostazioni_home, text="Posizione iniziale")
         self.initSpinControllo(self.tab_impostazioni_controllo)
 
     def initSpinControllo(self, tab):
         # ---label info impostazioni
-        Label(tab, text="INFO:").place(x=10, y=500)
-        self.label_info_impostazioni = Label(tab, text="-----")
+        Label(tab, text="INFO:").place(x=10, y=510)
+        self.label_info_impostazioni = Label(tab, text="---")
         self.label_info_impostazioni.place(x=10, y=530)
 
         # ------------- button ---------
@@ -162,50 +163,64 @@ class finestraMano():
         #LABEL FI
         Label(tab, text="fi max").place(x=50,y=405)
         Label(tab, text="fi min").place(x=50, y=435)
+        #immagine
+        self.im = Image.open(os.path.join("impostazioni","angoli.png")) # os.path.join() per avare compatibilità sistemi window e linux
+        self.img = self.im.resize((350, 300))
+        self.imgr = ImageTk.PhotoImage(self.img)
+        Label(tab, image=self.imgr).place(x=770,y=85)
 
 
 
     def leggiValoriEeprom(self):
-        for i in range(0, 5):
-            for j in range(0, 3):
-                self.inviaComando(0,"read:"+str((3*i)+j))
+        if self.arduino_connesso[0]==True:
+            self.label_info_impostazioni["text"]="---"
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    self.inviaComando(0,"read:"+str((3*i)+j))
+                    #sarà compito di analisiComando() a impostare gli spinbox
 
-                #self.spinTetaMin[i][j].set((3*i)+j)
+                    #self.spinTetaMin[i][j].set((3*i)+j)
 
-        for i in range(0, 5):
-            for j in range(0, 3):
-                self.inviaComando(0,"read:"+str(15+(3*i)+j))
-                #self.spinTetaMax[i][j].set(15+(3*i)+j)
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    self.inviaComando(0,"read:"+str(15+(3*i)+j))
+                    #self.spinTetaMax[i][j].set(15+(3*i)+j)
 
-        for i in range(0, 5):
-            self.inviaComando(0, "read:" + str(30+i))
-            #self.spinFiMin[i].set(30+i)
+            for i in range(0, 5):
+                self.inviaComando(0, "read:" + str(30+i))
+                #self.spinFiMin[i].set(30+i)
 
-        for i in range(0, 5):
-            self.inviaComando(0, "read:" + str(35 + i))
-            #self.spinFiMax[i].set(35+i)
-
+            for i in range(0, 5):
+                self.inviaComando(0, "read:" + str(35 + i))
+                #self.spinFiMax[i].set(35+i)
+        else:
+            self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
 
 
     def salvaValoriEeprom(self):
-        #tetaMin
-        for j in range(0, 5):
-            for i in range(0, 3):
-                #tetaMin[5][3]
-                #self.inviaComando(0,"write:"+str((3*j)+i)+":"+str(self.spinTetaMin[j][i]))
-                #self.spinTetaMin[j][i].set(j)
-                pass
+        if self.arduino_connesso[0]==True:
+            self.label_info_impostazioni["text"]="---"
+            #tetaMin
+            for j in range(0, 5):
+                for i in range(0, 3):
+                    #tetaMin[5][3]
+                    #self.inviaComando(0,"write:"+str((3*j)+i)+":"+str(self.spinTetaMin[j][i]))
+                    #self.spinTetaMin[j][i].set(j)
+                    pass
 
-        for j in range(0, 5):
-            for i in range(0, 3):
-                #self.spinTetaMax[j][i].set(j)
+            for j in range(0, 5):
+                for i in range(0, 3):
+                    #self.spinTetaMax[j][i].set(j)
+                    pass
+            for j in range(0, 5):
+                #self.spinFiMin[j].set(j)
                 pass
-        for j in range(0, 5):
-            #self.spinFiMin[j].set(j)
-            pass
-        for j in range(0, 5):
-            #self.spinFiMax[j].set(j)
-            pass
+            for j in range(0, 5):
+                #self.spinFiMax[j].set(j)
+                pass
+        else:
+            self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
+
 
 
 
@@ -215,6 +230,7 @@ class finestraMano():
         self.root_impostazioni.destroy()
 
     # -----------------REGISTRA MOVIMENTO ----------------------
+    """
     def apriRegistratore(self):
         print("Avvio registratore")
         self.win = Toplevel(self.root)
@@ -249,8 +265,16 @@ class finestraMano():
         self.menu_strumenti.entryconfigure(0, state=ACTIVE)
         del self.mano_guanto  # distruttore
         self.win.destroy()
+    """
 
-    # ---------------------------------------------------------
+    # ------------------ TAB CONTROLLO (SLIDER) --------------------------
+
+    def initTabControllo(self):
+        #TODO:aggiungere slider e file json locale da salvare
+        pass
+
+
+    # ---------------------------------------------------------------------
 
     def initCartellaLavoro(self):
         # al primoa avvio cerca la cartealla /movimenti
@@ -272,14 +296,14 @@ class finestraMano():
         # 0 Mappe
         self.tab_mappa_controllo = Frame(self.notebook_0)
         self.tab_mappa_pressione = Frame(self.notebook_0)
-        self.notebook_0.add(self.tab_mappa_controllo, text="Mappe")
-        self.notebook_0.add(self.tab_mappa_pressione, text="Pressione")
+        #self.tab_mappa_guanto = Frame(self.notebook_0)
+        self.notebook_0.add(self.tab_mappa_controllo, text="Controllo & Retroazione")
+        self.notebook_0.add(self.tab_mappa_pressione, text="Pressione & Guanto")
+        #self.notebook_0.add(self.tab_mappa_guanto,text="Controllo remoto")
         self.notebook_0.place(x=5, y=10)
         # 1
         self.tab_controllo = Frame(self.notebook_1)
-        self.tab_impostazioni = Frame(self.notebook_1)
-        self.notebook_1.add(self.tab_controllo, text="Controllo V1")
-        self.notebook_1.add(self.tab_impostazioni, text="Controllo V2")
+        self.notebook_1.add(self.tab_controllo, text="Controllo")
         self.notebook_1.place(x=390, y=10)
         # 2
         self.tab_creatore_1 = Frame(self.notebook_2)
@@ -711,6 +735,9 @@ class finestraMano():
         self.scheda_mappa_pressione = LabelFrame(self.tab_mappa_pressione, text="Pressione", width=360, height=400)
         self.scheda_mappa_pressione.place(x=5, y=10)
 
+        self.scheda_mappa_guanto = LabelFrame(self.tab_mappa_pressione, text="Guanto controllo remoto", width=360, height=400)
+        self.scheda_mappa_guanto.place(x=5, y=430)
+
         # MAPPA CONTROLLO
         self.mano_controllo = Mano()
         # ----- canvas mano --------
@@ -750,6 +777,20 @@ class finestraMano():
 
         # self.mano_pressione.visualizzaPosizioneDesiderata()
         self.canvas_mano_pressione.draw()
+
+        #MAPPA GUANTO
+        self.mano_guanto=Mano('g')
+        self.canvas_mano_guanto = FigureCanvasTkAgg(self.mano_guanto.getFig(), master=self.scheda_mappa_guanto)
+        self.canvas_mano_guanto.get_tk_widget().place(x=20, y=10)
+
+        self.toolbar_mano_guanto = NavigationToolbar2Tk(self.canvas_mano_guanto, self.scheda_mappa_guanto)
+        self.toolbar_mano_guanto.update()
+        self.toolbar_mano_guanto.place(x=10, y=320)
+
+        self.mano_guanto.visualizzaPosizioneDesiderata()
+        self.canvas_mano_guanto.draw()
+
+
 
     # ---------------- THREAD ------------------------------
 
