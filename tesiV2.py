@@ -66,11 +66,11 @@ class finestraMano():
 
         self.menu_strumenti.add_command(label="Registrazione", command=self.apriRegistratore)
         self.menu_strumenti.add_command(label="Impostazioni", command=self.apriImpostazioni)
-        self.menu_strumenti.add_command(label="Configura mappa", command=lambda: ())
-        self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda: ())
+        #self.menu_strumenti.add_command(label="Configura mappa", command=lambda: ())
+        #self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda: ())
 
         self.menu_info.add_command(label="Manuale", command=lambda: ())
-        self.menu_info.add_command(label="Protocollo arduino", command=lambda: ())
+        #self.menu_info.add_command(label="Protocollo arduino", command=lambda: ())
 
         self.root["menu"] = self.menu_bar
 
@@ -91,11 +91,11 @@ class finestraMano():
         self.tab_impostazioni_controllo = Frame(self.notebook_impostazioni)
         self.tab_impostazioni_pressione = Frame(self.notebook_impostazioni)
         self.tab_impostazioni_guanto = Frame(self.notebook_impostazioni)
-        self.tab_impostazioni_misure = Frame(self.notebook_impostazioni)
+        self.tab_impostazioni_home = Frame(self.notebook_impostazioni)
         self.notebook_impostazioni.add(self.tab_impostazioni_controllo, text="Controllo & Retroazione")
         self.notebook_impostazioni.add(self.tab_impostazioni_pressione, text="Pressione")
-        self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto")
-        self.notebook_impostazioni.add(self.tab_impostazioni_misure, text="Misure mano")
+        self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
+        self.notebook_impostazioni.add(self.tab_impostazioni_home2, text="Posizione iniziale")
         self.initSpinControllo(self.tab_impostazioni_controllo)
 
     def initSpinControllo(self, tab):
