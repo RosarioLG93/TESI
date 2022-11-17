@@ -95,7 +95,7 @@ class finestraMano():
         self.notebook_impostazioni.add(self.tab_impostazioni_controllo, text="Controllo & Retroazione")
         self.notebook_impostazioni.add(self.tab_impostazioni_pressione, text="Pressione")
         self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
-        self.notebook_impostazioni.add(self.tab_impostazioni_home2, text="Posizione iniziale")
+        self.notebook_impostazioni.add(self.tab_impostazioni_home, text="Posizione iniziale")
         self.initSpinControllo(self.tab_impostazioni_controllo)
 
     def initSpinControllo(self, tab):
