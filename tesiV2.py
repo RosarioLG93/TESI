@@ -1,4 +1,3 @@
-import copy
 import os
 import tkinter.filedialog
 from tkinter import ttk
@@ -8,11 +7,11 @@ import time
 import math
 import threading
 import serial.tools.list_ports
-from tkinter import filedialog
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 from ManoV3 import Mano
 from ManoPressione import ManoPressione
+
 from PIL import ImageTk, Image
 
 # from pressione import Pressione
@@ -43,14 +42,15 @@ class finestraMano():
         # ------- INIT ----------
         self.initNotebook()
         self.initTab()
+        self.initTabMappe()
         self.initTabConnessioni(self.tab_connessioni)
         self.initTabSeriale(self.tab_seriale)
         self.initTabMovimenti(self.tab_creatore_1)
         self.initTabControllo()
-        self.initPusantiGestionMovimento(self.tab_creatore_1)
+        self.initPusantiGestioneMovimento(self.tab_creatore_1)
         self.initPulsantiAcquisizioneMovimento(self.tab_creatore_1)
         self.initMenu()
-        self.initTabMappe()
+
 
         self.root.protocol("WM_DELETE_WINDOW", self.chiudiTutto)  # per sicurezza
         self.initCartellaLavoro()
@@ -289,8 +289,8 @@ class finestraMano():
     def initNotebook(self):
         self.notebook_0 = ttk.Notebook(self.root, width=470, height=self.dim_y - 50)
         self.notebook_1 = ttk.Notebook(self.root, width=340, height=self.dim_y - 50)
-        self.notebook_2 = ttk.Notebook(self.root, width=400, height=self.dim_y - 50)
-        self.notebook_3 = ttk.Notebook(self.root, width=470, height=self.dim_y - 50)
+        self.notebook_2 = ttk.Notebook(self.root, width=450, height=self.dim_y - 50)
+        self.notebook_3 = ttk.Notebook(self.root, width=450, height=self.dim_y - 50)
 
     def initTab(self):
         # 0 Mappe
@@ -314,10 +314,12 @@ class finestraMano():
         self.tab_seriale = Frame(self.notebook_3)
         self.notebook_3.add(self.tab_connessioni, text="Connessioni")
         self.notebook_3.add(self.tab_seriale, text="Monitor Seriale")
-        self.notebook_3.place(x=1130, y=10)
+        self.notebook_3.place(x=1180, y=10)
 
     def initTabConnessioni(self, tab):
         self.combo = []
+        self.combo_baudrate=[]
+        self.baudrate=[4800,9600,19200,38400]
         self.bt_scansiona = Button(tab, text="Scansiona", command=self.scansionePorte)
         self.bt_scansiona.place(x=10, y=5)
         Label(tab, text="Motori & Retroazione: ").place(x=10, y=35)
@@ -330,18 +332,30 @@ class finestraMano():
                              tk.StringVar(value="Seleziona porta")]
         # IMPORTANTE: è necessario avere
         # COMBO1
-        self.combo.append(ttk.Combobox(tab, textvariable=self.combo_valore[0]))
+        self.combo.append(ttk.Combobox(tab, width=15, textvariable=self.combo_valore[0],state='readonly'))
         self.combo[0].place(x=140, y=35)
         self.combo[0]["state"] = DISABLED
+        self.combo_baudrate.append(ttk.Combobox(tab,width=10,values=self.baudrate,state='readonly'))
+        self.combo_baudrate[0].place(x=260,y=35)
+        self.combo_baudrate[0].current(1)
+        self.combo_baudrate[0]["state"] = DISABLED
 
         # COMBO2
-        self.combo.append(ttk.Combobox(tab, textvariable=self.combo_valore[1]))
+        self.combo.append(ttk.Combobox(tab,width=15, textvariable=self.combo_valore[1],state='readonly'))
         self.combo[1].place(x=140, y=65)
         self.combo[1]["state"] = DISABLED
+        self.combo_baudrate.append(ttk.Combobox(tab, width=10, values=self.baudrate, state='readonly'))
+        self.combo_baudrate[1].place(x=260, y=65)
+        self.combo_baudrate[1].current(1)
+        self.combo_baudrate[1]["state"] = DISABLED
         # COMBO3
-        self.combo.append(ttk.Combobox(tab, textvariable=self.combo_valore[2]))
+        self.combo.append(ttk.Combobox(tab,width=15, textvariable=self.combo_valore[2],state='readonly'))
         self.combo[2].place(x=140, y=95)
         self.combo[2]["state"] = DISABLED
+        self.combo_baudrate.append(ttk.Combobox(tab, width=10, values=self.baudrate, state='readonly'))
+        self.combo_baudrate[2].place(x=260, y=95)
+        self.combo_baudrate[2].current(1)
+        self.combo_baudrate[2]["state"] = DISABLED
 
         Label(tab, text="Elenco porte COM").place(x=10, y=150)
 
@@ -350,24 +364,26 @@ class finestraMano():
 
         self.bt_connetti = [None, None, None]
         self.bt_connetti[0] = Button(tab, text="Connetti", command=lambda: self.connetti(0))
-        self.bt_connetti[0].place(x=350, y=32)
+        self.bt_connetti[0].place(x=360, y=32)
         self.bt_connetti[1] = Button(tab, text="Connetti", command=lambda: self.connetti(1))
-        self.bt_connetti[1].place(x=350, y=62)
+        self.bt_connetti[1].place(x=360, y=62)
         self.bt_connetti[2] = Button(tab, text="Connetti", command=lambda: self.connetti(2))
-        self.bt_connetti[2].place(x=350, y=92)
+        self.bt_connetti[2].place(x=360, y=92)
         # ***************** INFO ************************
-        Label(self.notebook_3, text="INFO: ").place(x=10, y=800)
+        Label(self.notebook_3, text="INFO: ").place(x=10, y=820)
         self.label_info = ttk.Label(self.notebook_3, text="-----")
-        self.label_info.place(x=10, y=820)
+        self.label_info.place(x=10, y=840)
 
     def connetti(self, i):
         print("Mi collego a arduino " + str(i))
         if (self.arduino_connesso[i] == False):
             # connetti
             try:
-                self.arduino[i] = serial.Serial(port=self.combo[i].get(), baudrate=9600, stopbits=1, bytesize=8)
+                print("Baudrate:"+str(self.combo_baudrate[i].get()))
+                self.arduino[i] = serial.Serial(port=self.combo[i].get(), baudrate=self.combo_baudrate[i].get(), stopbits=1, bytesize=8)
                 self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
                 self.combo[i]["state"] = DISABLED
+                self.combo_baudrate[i]=DISABLED
                 self.bt_connetti[i]["text"] = "Disconnetti"
                 self.arduino_connesso[i] = True
                 self.startThreadLettura(i)
@@ -383,6 +399,7 @@ class finestraMano():
             try:
                 self.arduino[i].close()
                 self.combo[i]["state"] = "readonly"
+                self.combo_baudrate[i]["state"] = "readonly"
                 self.label_info["text"] = "Scheda disconnessa"
             except:
                 self.label_info["text"] = "Errore disconnessione"
@@ -414,17 +431,20 @@ class finestraMano():
             self.label_porte["text"] = self.porte
             if (self.arduino_connesso[0] == False):
                 self.combo[0]["state"] = "readonly"  # attiva la selezione, opposto di disabled
+                self.combo_baudrate[0]["state"] = "readonly"
             if (self.arduino_connesso[1] == False):
                 self.combo[1]["state"] = "readonly"
+                self.combo_baudrate[1]["state"] = "readonly"
             if (self.arduino_connesso[2] == False):
                 self.combo[2]["state"] = "readonly"
+                self.combo_baudrate[1]["state"] = "readonly"
 
     def initTabSeriale(self, tab):
         # LABEL FRAME X3
         self.scheda_seriale = []
-        self.scheda_seriale.insert(0, ttk.LabelFrame(tab, text="Scheda motori & Retroazione", width=450, height=250))
-        self.scheda_seriale.insert(1, ttk.LabelFrame(tab, text="Scheda pressione", width=450, height=250))
-        self.scheda_seriale.insert(2, ttk.LabelFrame(tab, text="Scheda guanto", width=450, height=250))
+        self.scheda_seriale.insert(0, ttk.LabelFrame(tab, text="Scheda motori & Retroazione", width=430, height=250))
+        self.scheda_seriale.insert(1, ttk.LabelFrame(tab, text="Scheda pressione", width=430, height=250))
+        self.scheda_seriale.insert(2, ttk.LabelFrame(tab, text="Scheda guanto", width=430, height=250))
         self.scheda_seriale[0].place(x=10, y=10)
         self.scheda_seriale[1].place(x=10, y=270)
         self.scheda_seriale[2].place(x=10, y=530)
@@ -540,30 +560,43 @@ class finestraMano():
         self.listbox_micromovimenti.bind("<Delete>", self.eliminaMicromovimento)
         self.listbox_micromovimenti.bind("<BackSpace>", self.eliminaMicromovimento)
         # INFO TAB MOVIMENTI (CREATORE)
-        Label(tab, text="Info:").place(x=10, y=780)
+        Label(tab, text="INFO:").place(x=10, y=790)
         self.label_info_creatore = Label(tab, text="-----")
         self.label_info_creatore["text"] = "-----"
-        self.label_info_creatore.place(x=10, y=800)
+        self.label_info_creatore.place(x=10, y=810)
 
-    def initPusantiGestionMovimento(self, tab):
+    def initPusantiGestioneMovimento(self, tab):
         # PULSANTI ACQUIZIONE E GESTIONE MICROMOVIMENTI
         self.frame_gestione = Frame(tab)
         self.frame_gestione.place(x=280, y=280)
-        Button(self.frame_gestione, text="Invia", command=lambda: print("invia")).grid(row=2, column=0, stick="NW",
+        Button(self.frame_gestione, text="Invia intera sequenza", command=self.inviaMovimento).grid(row=1, column=0, stick="NW",
                                                                                        padx=10, pady=10)
+        Button(self.frame_gestione, text="Invia comando selezionato", command=self.inviaMicromovimento).grid(row=2, column=0,
+                                                                                               stick="NW",
+                                                                                               padx=10, pady=10)
         Button(self.frame_gestione, text="Modifica", command=self.modificaMicromovimento).grid(row=3, column=0,
                                                                                                stick="NW", padx=10,
                                                                                                pady=10)
         Button(self.frame_gestione, text="Salva", command=self.salvaMovimento).grid(row=4, column=0, stick="NW",
                                                                                     padx=10, pady=10)
-        Button(self.frame_gestione, text="Deseleziona", command=lambda: ()).grid(row=5, column=0, stick="NW", padx=10,
-                                                                                 pady=10)
-        Button(self.frame_gestione, text="Elimina", command=lambda: ()).grid(row=6, column=0, stick="NW", padx=10,
+       # Button(self.frame_gestione, text="Deseleziona", command=lambda: ()).grid(row=5, column=0, stick="NW", padx=10,pady=10)
+        Button(self.frame_gestione, text="Elimina", command=self.eliminaMicromovimento).grid(row=6, column=0, stick="NW", padx=10,
                                                                              pady=10)
 
     def modificaMicromovimento(self):
         # TODO: modificaMicromovimento
         pass
+
+
+
+    def inviaMovimento(self):
+        pass
+
+    def inviaMicromovimento(self):
+        pass
+
+
+
 
     def disabilitaPulsanti(self):
         for x in self.frame_gestione.winfo_children():
@@ -586,11 +619,11 @@ class finestraMano():
         self.bt_aggiungi_micromovimento = Button(self.frame_acquisizione, text="Aggiungi",
                                                  command=self.aggiungiMicromovimento)
         self.bt_aggiungi_micromovimento.place(x=240, y=10)
-        Button(self.frame_acquisizione, text="Acquisisci Controllo", command=self.acquisisciPosizioneControllo).place(
+        Button(self.frame_acquisizione, text="Acquisisci posizione Controllo", command=self.acquisisciPosizioneControllo).place(
             x=10, y=40)
-        Button(self.frame_acquisizione, text="Acquisisci Retroazione",
+        Button(self.frame_acquisizione, text="Acquisisci posizione Retroazione",
                command=self.acquisisciPosizioneRetroazione).place(x=10, y=70)
-        Button(self.frame_acquisizione, text="Acquisisci Guanto", command=self.acquisisciPosizioneGuanto).place(x=10,
+        Button(self.frame_acquisizione, text="Acquisisci posizione Guanto", command=self.acquisisciPosizioneGuanto).place(x=10,
                                                                                                                 y=100)
 
     def aggiungiMicromovimento(self,
@@ -604,7 +637,7 @@ class finestraMano():
                 self.listbox_micromovimenti.insert(END, self.entry_comando_creatore.get() + "\n")
             else:
                 self.listbox_micromovimenti.insert(int(self.listbox_micromovimenti.curselection()[0]) + 1,
-                                                   self.entry_comando_creatore.get())
+                                                   self.entry_comando_creatore.get() + "\n")
         self.entry_comando_creatore.delete(0, END)
         self.listbox_micromovimenti.see(END)  # in questo modo si vede sempre l'ultimo comando inserito
 
@@ -711,10 +744,11 @@ class finestraMano():
         except:
             self.label_info_creatore["text"] = "Errore durante eliminazione " + self.file_eliminare
 
-    def eliminaMicromovimento(self):
-
-        # TODO: eliminaMicromoviemnto
-        pass
+    def eliminaMicromovimento(self,val=None):
+        try:
+            self.listbox_micromovimenti.delete(self.listbox_micromovimenti.curselection())
+        except:
+            self.label_info_creatore["text"] = "Seleziona un comando da eliminare"
 
     def chiudiTutto(self):
         # TODO: prima di chiudere verificare se c'è qualcosa da salvare
