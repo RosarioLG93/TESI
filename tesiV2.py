@@ -1,3 +1,4 @@
+import json
 import os
 import tkinter.filedialog
 from tkinter import ttk
@@ -94,12 +95,37 @@ class finestraMano():
         self.tab_impostazioni_guanto = Frame(self.notebook_impostazioni)
         self.tab_impostazioni_home = Frame(self.notebook_impostazioni)
         self.notebook_impostazioni.add(self.tab_impostazioni_controllo, text="Angoli Min/Max EEPROM")
+        self.notebook_impostazioni.add(self.tab_impostazioni_home, text="Posizione iniziale")
         self.notebook_impostazioni.add(self.tab_impostazioni_pressione, text="Pressione")
         self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
-        self.notebook_impostazioni.add(self.tab_impostazioni_home, text="Posizione iniziale")
-        self.initSpinControllo(self.tab_impostazioni_controllo)
+        self.initTabImpostazioniControllo(self.tab_impostazioni_controllo)
+        self.initTabImpostazioniPosizioneIniziale(self.tab_impostazioni_home)
 
-    def initSpinControllo(self, tab):
+
+    def initTabImpostazioniPosizioneIniziale(self,tab):
+        #TODO:Inserire spinbox valori iniziali, salvati in un json, le mappe inizializzate usano il file json
+        self.tetaHome=[[],[],[],[],[]]
+        self.fiHome=[]
+        self.spinTetaHome = [[], [], [], [], []]
+        self.spinFiHome = []
+        nome = {0: "Pollice [0]", 1: "Indice[1]", 2: "Medio[2]", 3: "Anulare[3]", 4: "Mignolo[4]"}
+
+        self.label_frame_spin_home = []
+        nome = {0: "Pollice [0]", 1: "Indice[1]", 2: "Medio[2]", 3: "Anulare[3]", 4: "Mignolo[4]"}
+        for i in range(0, 5):
+            self.label_frame_spin_home.append(LabelFrame(tab, text=nome[i], width=100, height=400))
+            self.label_frame_spin_home[i].place(x=130 + (130 * i), y=80)
+
+        Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
+        Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
+
+
+        Label(tab, image=self.imgr).place(x=770, y=85)
+
+
+
+
+    def initTabImpostazioniControllo(self, tab):
         # ---label info impostazioni
         Label(tab, text="INFO:").place(x=10, y=510)
         self.label_info_impostazioni = Label(tab, text="---")
@@ -172,6 +198,7 @@ class finestraMano():
 
 
     def leggiValoriEeprom(self):
+        #---------- LETTURA VALORI MIN/MAX ------------------------------------
         if self.arduino_connesso[0]==True:
             self.label_info_impostazioni["text"]="---"
             for i in range(0, 5):
@@ -193,13 +220,19 @@ class finestraMano():
             for i in range(0, 5):
                 self.inviaComando(0, "read:" + str(35 + i))
                 #self.spinFiMax[i].set(35+i)
+            #--------------------------------- LETTURA VALORI HOME -------------------
+
         else:
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
+
+
+
 
 
     def salvaValoriEeprom(self):
         if self.arduino_connesso[0]==True:
             self.label_info_impostazioni["text"]="---"
+            #------------------------ SCRITTURA VALORI MIN/MAX --------------------------------
             #tetaMin
             for j in range(0, 5):
                 for i in range(0, 3):
@@ -218,8 +251,12 @@ class finestraMano():
             for j in range(0, 5):
                 #self.spinFiMax[j].set(j)
                 pass
+
+            #----------------------------- SCRITTURA VALORI HOME --------------------
+
         else:
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
+
 
 
 
@@ -383,13 +420,13 @@ class finestraMano():
                 self.arduino[i] = serial.Serial(port=self.combo[i].get(), baudrate=self.combo_baudrate[i].get(), stopbits=1, bytesize=8)
                 self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
                 self.combo[i]["state"] = DISABLED
-                self.combo_baudrate[i]=DISABLED
+                self.combo_baudrate[i]["state"]=DISABLED
                 self.bt_connetti[i]["text"] = "Disconnetti"
                 self.arduino_connesso[i] = True
                 self.startThreadLettura(i)
             except Exception as e:
                 self.label_info["text"] = "Errore connessione " + self.combo[i].get()
-                print("Errore da connetti(i): " + e.__str__())
+                print("Errore da connetti("+str(i)+"): " + e.__str__())
 
         else:
             # DISCONNETTO
@@ -437,7 +474,7 @@ class finestraMano():
                 self.combo_baudrate[1]["state"] = "readonly"
             if (self.arduino_connesso[2] == False):
                 self.combo[2]["state"] = "readonly"
-                self.combo_baudrate[1]["state"] = "readonly"
+                self.combo_baudrate[2]["state"] = "readonly"
 
     def initTabSeriale(self, tab):
         # LABEL FRAME X3
@@ -642,8 +679,21 @@ class finestraMano():
         self.listbox_micromovimenti.see(END)  # in questo modo si vede sempre l'ultimo comando inserito
 
     def acquisisciPosizioneControllo(self):
-        # TODO:acquisisciPosizioneControllo
-        pass
+        print(self.mano_controllo.getJson())
+        #DESERIALIZZARE JSON
+        file=json.loads(self.mano_controllo.getJson())
+
+        posizione = self.listbox_micromovimenti.curselection().__len__()
+        if (posizione == 0):
+            self.listbox_micromovimenti.insert(END, self.mano_controllo.getJson() + "\n")
+        else:
+            self.listbox_micromovimenti.insert(int(self.listbox_micromovimenti.curselection()[0]) + 1,
+                                               self.mano_controllo.getJson() + "\n")
+        self.entry_comando_creatore.delete(0, END)
+        self.listbox_micromovimenti.see(END)  # in questo modo si vede sempre l'ultimo comando inserito
+        array_d10=file["d1"];
+        #print(array_d10[0])
+
 
     def acquisisciPosizioneRetroazione(self):
         # TODO:acquisisciPosizioneRetroazione
@@ -827,11 +877,23 @@ class finestraMano():
 
 
     # ---------------- THREAD ------------------------------
+    """
+    il thread_lettura è necessario per rimanere sempre in ascolto
+    quanto riceve 'ok' vuol dire che può l'arduino è pronto per ricevere un comando, questo è possibile
+    utilizzado doppio mutex
+    ripasso:
+      mutex1.acquire(blocking=True) (bloccante)
+      ....
+      mutex2.relase()
+    
+    
+    
+    """
 
     def letturaSeriale(self, i):
         while (self.flag_thread[i]):
             try:
-                lettura = self.arduino[i].readline().decode("ascii")
+                lettura = self.arduino[i].readline().decode("ascii") #readline è bloccante
                 self.testo_seriale[i].insert(END, lettura)
                 self.testo_seriale[i].see(END)
                 self.analisiComando(i, lettura)

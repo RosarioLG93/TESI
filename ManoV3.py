@@ -1,3 +1,5 @@
+import json
+
 import matplotlib.pyplot as plt
 import os
 import math
@@ -46,6 +48,18 @@ class Mano():
         plt.axis('off')
         plt.style.use('classic')
         plt.tight_layout()
+
+    def getJson(self):
+        self.dict={
+            "d0":self.angolo_t[0].tolist(), #numpy array non è serializzabile, per questo lo devo convertire
+            "d1": self.angolo_t[1].tolist(),
+            "d2": self.angolo_t[2].tolist(),
+            "d3": self.angolo_t[3].tolist(),
+            "d4": self.angolo_t[4].tolist()
+
+        }
+        self.posizione_json=json.dumps(self.dict)
+        return self.posizione_json
 
 
     def getFig(self):
