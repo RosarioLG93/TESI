@@ -100,6 +100,10 @@ class finestraMano():
         self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
         self.initTabImpostazioniControllo(self.tab_impostazioni_controllo)
         self.initTabImpostazioniPosizioneIniziale(self.tab_impostazioni_home)
+        # ---label info impostazioni (comune per tutti)
+        Label(self.root_impostazioni, text="INFO:").place(x=30, y=540)
+        self.label_info_impostazioni = Label(self.root_impostazioni, text="---")
+        self.label_info_impostazioni.place(x=30, y=560)
 
 
     def initTabImpostazioniPosizioneIniziale(self,tab):
@@ -119,18 +123,26 @@ class finestraMano():
         Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
         Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
 
-
         Label(tab, image=self.imgr).place(x=770, y=85)
 
+        for i in range(0,5):
+            for j in range(0,3):
+                self.spinTetaHome[i].append(ttk.Spinbox(self.label_frame_spin_home[i],from_=-30,to=200,width=10))
+                self.spinTetaHome[i][j].place(x=10, y=(j * 90) + 40)
 
+        # LABEL TETA
+        for j in range(0, 3):
+            #Label(tab, text="teta max[" + str(j) + "]").place(x=30, y=105 + (j * 90))
+            Label(tab, text="teta home[" + str(j) + "]").place(x=30, y=135 + (j * 90))
+
+        for i in range(0, 5):
+            self.spinFiHome.append(ttk.Spinbox(self.label_frame_spin_home[i],width=10))
+            self.spinFiHome[i].place(x=10, y=310)
+
+        Label(tab, text="fi home").place(x=50, y=405)
 
 
     def initTabImpostazioniControllo(self, tab):
-        # ---label info impostazioni
-        Label(tab, text="INFO:").place(x=10, y=510)
-        self.label_info_impostazioni = Label(tab, text="---")
-        self.label_info_impostazioni.place(x=10, y=530)
-
         # ------------- button ---------
         Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
         Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
@@ -191,7 +203,7 @@ class finestraMano():
         Label(tab, text="fi min").place(x=50, y=435)
         #immagine
         self.im = Image.open(os.path.join("impostazioni","angoli.png")) # os.path.join() per avare compatibilità sistemi window e linux
-        self.img = self.im.resize((350, 300))
+        self.img = self.im.resize((400, 400))
         self.imgr = ImageTk.PhotoImage(self.img)
         Label(tab, image=self.imgr).place(x=770,y=85)
 
@@ -222,6 +234,13 @@ class finestraMano():
                 #self.spinFiMax[i].set(35+i)
             #--------------------------------- LETTURA VALORI HOME -------------------
 
+            for i in range(0,5):
+                for j in range(0,3):
+                    self.inviaComando(0,"read:"+str(40+(i*3)+j))
+                    #self.spinTetaHome.set(....)
+            for i in range(0, 5):
+                self.inviaComando(0, "read:" + str(52 + i))
+
         else:
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
 
@@ -234,26 +253,35 @@ class finestraMano():
             self.label_info_impostazioni["text"]="---"
             #------------------------ SCRITTURA VALORI MIN/MAX --------------------------------
             #tetaMin
-            for j in range(0, 5):
-                for i in range(0, 3):
+            for i in range(0, 5):
+                for j in range(0, 3):
                     #tetaMin[5][3]
-                    #self.inviaComando(0,"write:"+str((3*j)+i)+":"+str(self.spinTetaMin[j][i]))
-                    #self.spinTetaMin[j][i].set(j)
+                    #self.inviaComando(0,"write:"+str((3*i)+j)+":"+str(self.spinTetaMin[i][j].get()))
                     pass
-
-            for j in range(0, 5):
-                for i in range(0, 3):
-                    #self.spinTetaMax[j][i].set(j)
+            #tetaMax
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    #self.inviaComando(0,"write:"+str((3*i)+j)+":"+str(self.spinTetaMin[i][j].get()))
                     pass
-            for j in range(0, 5):
-                #self.spinFiMin[j].set(j)
+            #FiMin
+            for i in range(0, 5):
+                #self.inviaComando(0,"write:"+str((3*i)+j)+":"+str(self.spinTetaMin[i][j].get()))
                 pass
-            for j in range(0, 5):
-                #self.spinFiMax[j].set(j)
+            #FiMax
+            for i in range(0, 5):
+                #self.inviaComando(0,"write:"+str((3*i)+j)+":"+str(self.spinTetaMin[i][j].get()))
                 pass
 
             #----------------------------- SCRITTURA VALORI HOME --------------------
+            for i in range(0,5):
+                for j in range(0,3):
+                    #self.inviaComando(0,"write:"+str(40+(i*3)+j)+":"+str(self.spinTetaHome[i][j].get()))
+                    pass
 
+
+            for i in range(0, 5):
+                #self.inviaComando(0,"write:"+str(55+i)+":"+str(self.spinFiHome[i]))
+                pass
         else:
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
 
@@ -618,12 +646,7 @@ class finestraMano():
                                                                                     padx=10, pady=10)
        # Button(self.frame_gestione, text="Deseleziona", command=lambda: ()).grid(row=5, column=0, stick="NW", padx=10,pady=10)
         Button(self.frame_gestione, text="Elimina", command=self.eliminaMicromovimento).grid(row=6, column=0, stick="NW", padx=10,
-                                                                             pady=10)
-
-    def modificaMicromovimento(self):
-        # TODO: modificaMicromovimento
-        pass
-
+                                                                           pady=10)
 
 
     def inviaMovimento(self):
@@ -632,8 +655,43 @@ class finestraMano():
     def inviaMicromovimento(self):
         pass
 
+    # -------------------------- MODIFICA MICROMOVIMENTO -----------------------------------------
+
+    def modificaMicromovimento(self):
+        indice = self.listbox_micromovimenti.curselection()
+        print(indice)
+        if(indice!=()):
+            try:
+                self.root_modifica = Toplevel(self.root)
+                self.root_modifica.geometry("800x80+600+600")
+                self.entry_modifica_comando = Entry(self.root_modifica, width=100)
+                self.entry_modifica_comando.place(x=10, y=10)
+
+                self.entry_modifica_comando.insert(0, self.listbox_micromovimenti.get(indice)[0:self.listbox_micromovimenti.get(indice).l])
+                Button(self.root_modifica, text="Salva", command=lambda : self.aggiornaMicromovimento(indice)).place(x=350, y=50)
+                Button(self.root_modifica, text="Annulla", command=self.annullaAggiornamentoMicromovimento).place(x=400,y=50)
+            except Exception as e:
+                print("Errore modifica: " + e.__str__())
+        else:
+            self.label_info_creatore["text"]="Seleziona un movimento da modificare"
+
+    def aggiornaMicromovimento(self,indice):
+        print(indice)
+        self.listbox_micromovimenti.delete(indice)
+        self.listbox_micromovimenti.insert(indice,self.entry_modifica_comando.get()+"\n")
 
 
+    def annullaAggiornamentoMicromovimento(self):
+        self.label_info_creatore["text"] = "Modifica annullata"
+        self.root_modifica.destroy()
+
+    """
+    #INFO UTILE
+    def deseleziona(self):
+        listbox_micromovimenti.selection_clear(0, END)
+        # listbox.bind('<FocusOut>', lambda e: listbox.selection_clear(0, END)) (utile per il futuro)
+    """
+    #--------------------------------------------------------------------------------------------------
 
     def disabilitaPulsanti(self):
         for x in self.frame_gestione.winfo_children():
@@ -811,16 +869,16 @@ class finestraMano():
     # ---------------------------------- MAPPA ---------------------------------------
 
     def initTabMappe(self):
-        self.scheda_mappa_controllo = LabelFrame(self.tab_mappa_controllo, text="Controllo", width=350, height=390)
+        self.scheda_mappa_controllo = LabelFrame(self.tab_mappa_controllo, text="Controllo", width=360, height=400)
         self.scheda_mappa_controllo.place(x=10, y=10)
-        self.scheda_mappa_retroazione = LabelFrame(self.tab_mappa_controllo, text="Retroazione ", width=350, height=390)
+        self.scheda_mappa_retroazione = LabelFrame(self.tab_mappa_controllo, text="Retroazione ", width=360, height=400)
         self.scheda_mappa_retroazione.place(x=10, y=430)
 
         self.scheda_mappa_pressione = LabelFrame(self.tab_mappa_pressione, text="Pressione", width=360, height=400)
-        self.scheda_mappa_pressione.place(x=5, y=10)
+        self.scheda_mappa_pressione.place(x=10, y=10)
 
         self.scheda_mappa_guanto = LabelFrame(self.tab_mappa_pressione, text="Guanto controllo remoto", width=360, height=400)
-        self.scheda_mappa_guanto.place(x=5, y=430)
+        self.scheda_mappa_guanto.place(x=10, y=430)
 
         # MAPPA CONTROLLO
         self.mano_controllo = Mano()
