@@ -15,6 +15,9 @@ from ManoPressione import ManoPressione
 
 from PIL import ImageTk, Image
 
+from datetime import datetime
+import datetime
+
 # from pressione import Pressione
 
 
@@ -522,10 +525,19 @@ class finestraMano():
         self.entry_comando[1].place(x=10, y=10)
         self.entry_comando.insert(2, Entry(self.scheda_seriale[2], width=20))
         self.entry_comando[2].place(x=10, y=10)
-        # BUTTON
+        # BUTTON_INVIA
         Button(self.scheda_seriale[0], text="Invia", command=lambda: self.inviaComando(0)).place(x=160, y=5)
         Button(self.scheda_seriale[1], text="Invia", command=lambda: self.inviaComando(1)).place(x=160, y=5)
         Button(self.scheda_seriale[2], text="Invia", command=lambda: self.inviaComando(2)).place(x=160, y=5)
+        #BUTTON_CLEAR
+        Button(self.scheda_seriale[0], text="Clear", command=lambda: self.clearSeriale(0)).place(x=200, y=5)
+        Button(self.scheda_seriale[1], text="Clear", command=lambda: self.clearSeriale(1)).place(x=200, y=5)
+        Button(self.scheda_seriale[2], text="Clear", command=lambda: self.clearSeriale(2)).place(x=200, y=5)
+        #BUTTON_SALVA_TESTO
+        Button(self.scheda_seriale[0], text="Salva", command=lambda: self.salvaTesto(0)).place(x=240, y=5)
+        Button(self.scheda_seriale[1], text="Salva", command=lambda: self.salvaTesto(1)).place(x=240, y=5)
+        Button(self.scheda_seriale[2], text="Salva", command=lambda: self.salvaTesto(2)).place(x=240, y=5)
+
         # TEXT
         self.testo_seriale = []
         self.testo_seriale.insert(0, Text(self.scheda_seriale[0], width=50, height=11, state='normal'))
@@ -579,6 +591,41 @@ class finestraMano():
         else:
             # notifica che arduino[i] non è connesso
             self.label_info["text"] = "Errore: Arduino non connesso"
+
+
+    def clearSeriale(self,i):
+        self.testo_seriale[i].delete('1.0',END)
+        #pass
+
+
+
+    def salvaTesto(self,i):
+        data=datetime.date.today().strftime("%d_%m_%y")
+        orario=datetime.datetime.now().strftime("%H_%M_%S")
+
+        print(data)
+        print(orario.__str__())
+        try:
+            if(i==0):
+                #print(os.path.join("log","Controllo__"+str(data)+"___"+str(orario)+".txt"))
+                file=open(os.path.join("log","Controllo__"+str(data)+"___"+str(orario)+".txt"),"w")
+                for x in self.testo_seriale[i].get(1.0,END):
+                    file.write(x)
+                file.close()
+            if (i == 1):
+                file=open(os.path.join("log","Pressione__"+str(data)+"___"+str(orario)+".txt"),"w")
+                for x in self.testo_seriale[i].get(1.0, END):
+                    file.write(x)
+                file.close()
+            if (i == 2):
+                file=open(os.path.join("log","Guanto__"+str(data)+"___"+str(orario)+".txt"),"w")
+                for x in self.testo_seriale[i].get(1.0, END):
+                    file.write(x)
+                file.close()
+        except Exception as e:
+            print(e.__str__())
+
+
 
     def initTabMovimenti(self, tab):
         Label(tab, text="Seleziona cartella").place(x=10, y=10)
