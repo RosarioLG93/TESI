@@ -44,21 +44,37 @@ class finestraMano():
         self.root.geometry("{}x{}+{}+{}".format(self.dim_x, self.dim_y, self.x0, self.y0))
 
         # ------- INIT ----------
+        self.initMutex()
         self.initNotebook()
         self.initTab()
         self.initTabMappe()
         self.initTabConnessioni(self.tab_connessioni)
         self.initTabSeriale(self.tab_seriale)
         self.initTabMovimenti(self.tab_creatore_1)
-        self.initTabControllo()
+        self.initTabControllo(self.tab_controllo)
         self.initPusantiGestioneMovimento(self.tab_creatore_1)
         self.initPulsantiAcquisizioneMovimento(self.tab_creatore_1)
         self.initMenu()
 
 
-        self.root.protocol("WM_DELETE_WINDOW", self.chiudiTutto)  # per sicurezza
+        self.root.protocol("WM_DELETE_WINDOW", self.chiudiTutto)  # chiudiTutto viene eseguito quando clicco su x rossa
         self.initCartellaLavoro()
         self.disabilitaPulsanti()  # in questo modo devo necessariamente aprire un file per abiltiare i comandi
+
+    #-------------------------- INIT MUTEX --------------------
+    def initMutex(self):
+        self.mutexSerialeControllo=threading.Lock()
+        self.mutexSerialeGuanto=threading.Lock()
+
+        #2 mutex per chiedere un comando alla volta
+        self.mutexControlloLuttura=threading.Lock()
+        self.mutexControlloScrittura=threading.Lock()
+        """
+        Ripasso:
+        
+        """
+
+
 
     # ------------------------- INIT MENU -----------------------
 
@@ -123,8 +139,8 @@ class finestraMano():
             self.label_frame_spin_home.append(LabelFrame(tab, text=nome[i], width=100, height=400))
             self.label_frame_spin_home[i].place(x=130 + (130 * i), y=80)
 
-        Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
-        Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
+        Button(tab, text="Carica ", command=self.leggiValoriEepromHome).place(x=10, y=10)
+        Button(tab, text="Salva su EEPROM", command=self.salvaValoriEepromHome).place(x=10, y=40)
 
         Label(tab, image=self.imgr).place(x=770, y=85)
 
@@ -215,7 +231,7 @@ class finestraMano():
     def leggiValoriEeprom(self):
         #---------- LETTURA VALORI MIN/MAX ------------------------------------
         if self.arduino_connesso[0]==True:
-            self.label_info_impostazioni["text"]="---"
+            self.label_info_impostazioni["text"]="Avvio processo, lock seriale"
             for i in range(0, 5):
                 for j in range(0, 3):
                     self.inviaComando(0,"read:"+str((3*i)+j))
@@ -243,7 +259,7 @@ class finestraMano():
                     #self.spinTetaHome.set(....)
             for i in range(0, 5):
                 self.inviaComando(0, "read:" + str(52 + i))
-
+            self.label_info_impostazioni["text"] = "Processo terminato, unlock seriale"
         else:
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
 
@@ -275,21 +291,38 @@ class finestraMano():
                 #self.inviaComando(0,"write:"+str((3*i)+j)+":"+str(self.spinTetaMin[i][j].get()))
                 pass
 
-            #----------------------------- SCRITTURA VALORI HOME --------------------
-            for i in range(0,5):
-                for j in range(0,3):
-                    #self.inviaComando(0,"write:"+str(40+(i*3)+j)+":"+str(self.spinTetaHome[i][j].get()))
-                    pass
 
-
-            for i in range(0, 5):
-                #self.inviaComando(0,"write:"+str(55+i)+":"+str(self.spinFiHome[i]))
-                pass
         else:
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
 
 
+    def leggiValoriEepromHome(self):
+        # --------------------------------- LETTURA VALORI HOME -------------------
+        if (self.arduino_connesso[0] == True):
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    self.inviaComando(0, "read:" + str(40 + (i * 3) + j))
+                    # self.spinTetaHome.set(....)
+            for i in range(0, 5):
+                self.inviaComando(0, "read:" + str(52 + i))
+        else:
+            self.label_info_impostazioni["text"] = "Arduino[0] Controllo & Retroazione disconnesso"
 
+
+
+    def salvaValoriEepromHome(self):
+        if(self.arduino_connesso[0]==True):
+            # ----------------------------- SCRITTURA VALORI HOME --------------------
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    # self.inviaComando(0,"write:"+str(40+(i*3)+j)+":"+str(self.spinTetaHome[i][j].get()))
+                    pass
+
+            for i in range(0, 5):
+                # self.inviaComando(0,"write:"+str(55+i)+":"+str(self.spinFiHome[i]))
+                pass
+        else:
+            self.label_info_impostazioni["text"] = "Arduino[0] Controllo & Retroazione disconnesso"
 
 
 
@@ -337,12 +370,90 @@ class finestraMano():
 
     # ------------------ TAB CONTROLLO (SLIDER) --------------------------
 
-    def initTabControllo(self):
+    def initTabControllo(self,tab):
         #TODO:aggiungere slider e file json locale da salvare
-        pass
+        scheda_movimento_s3 = LabelFrame(tab, text="teta[2]", width=190, height=180)
+        scheda_movimento_s3.place(x=140, y=60)
+
+        scheda_movimento_s2 = LabelFrame(tab, text="teta[1]", width=190, height=180)
+        scheda_movimento_s2.place(x=140, y=250)
+
+
+        scheda_movimento_s1 = LabelFrame(tab, text="teta[0]", width=190, height=180)
+        scheda_movimento_s1.place(x=140, y=440)
+
+        scheda_movimento_fi = LabelFrame(tab, text="fi", width=190, height=220)
+        scheda_movimento_fi.place(x=140, y=630)
+
+        scheda_movimento_pollice = LabelFrame(tab, text="Pollice", width=90, height=740)
+        scheda_movimento_pollice.place(x=10, y=60)
+
+        # ------------------------ S2 (angolo[1]) ----------------------------------
+
+        self.slider = [[0] * 3] * 5
+
+        #----------------- teta[2] angolo[2] ---------------------------------
+        # ricorda che S3 si muove perchè è vincolato a S2 (in questa versione)
+        # TODO: aggiungere impostazioni slider nella sezione impostazioni per valori MIN & MAX
+        # ttk.Scale(scheda_movimento,orient='vertical',length=160,from_=-0, to=130,command=lambda val: aggiorna(val,0)).place(x=10,y=10)
+        self.slider[1][1] = tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140,from_=-0, to=110)
+        # la precedente operazione è necessaria per fare successivamente slider[1][1].set(...)
+        self.slider[1][1].place(x=10, y=10)
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-0, to=110).place(x=50, y=10)
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=90, y=10)
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=130, y=10)
+
+
+
+        # ---------------- teta[1] (angolo[1]) ----------------------------
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=5, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=45, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=85, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=125, y=10)
+
+        # ---------------- teta[0] (angolo[0]) ----------------------------
+        self.slider[1][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90, command=lambda val:self.aggiornaAngoloTeta(1,0,val)).place(x=10, y=10)
+        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=50, y=10)
+        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=90, y=10)
+        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=130, y=10)
+
+
+        #----------- fi -----------------
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50).place(x=20, y=5)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50 ).place(x=20, y=45)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50 ).place(x=20, y=85)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50).place(x=20, y=125)
+
+
+
+        #pollice
+        tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,to=90).place(x=10, y=10)
+        tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,
+                 to=90).place(x=10, y=160)
+        tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,
+                 to=90).place(x=10, y=320)
+        tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,
+                 to=90).place(x=10, y=480)
+
 
 
     # ---------------------------------------------------------------------
+
+
+    def aggiornaAngoloTeta(self,dito,teta,valore):
+        """
+        0->pollice
+        1->indice
+        2->medio
+        3->anulare
+        4->mignolo
+        Aggiorno la mappa e successivamente provo ad inviare
+        l'invio è annullato se c'è uno stream attivo!!! (che sia controllo remoto o aggionamento eeprom e posizione iniziale)
+
+        """
+        self.mano_controllo.setAngolo(dito,teta,valore)
+        self.canvas_mano_controllo.draw() #per aggiornare la mappa
+
 
     def initCartellaLavoro(self):
         # al primoa avvio cerca la cartealla /movimenti
@@ -625,7 +736,7 @@ class finestraMano():
         except Exception as e:
             print(e.__str__())
 
-
+#-------------------------------------------------------------------------------------
 
     def initTabMovimenti(self, tab):
         Label(tab, text="Seleziona cartella").place(x=10, y=10)
