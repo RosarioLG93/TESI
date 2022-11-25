@@ -142,6 +142,10 @@ class finestraMano():
         Button(tab, text="Carica ", command=self.leggiValoriEepromHome).place(x=10, y=10)
         Button(tab, text="Salva su EEPROM", command=self.salvaValoriEepromHome).place(x=10, y=40)
 
+        #JSON
+        Button(tab, text="Carica home.json", command=self.leggiHomeJson).place(x=150, y=10)
+        Button(tab, text="Salva home.json", command=self.salvaHomeJson).place(x=150, y=40)
+
         Label(tab, image=self.imgr).place(x=770, y=85)
 
         for i in range(0,5):
@@ -160,11 +164,31 @@ class finestraMano():
 
         Label(tab, text="fi home").place(x=50, y=405)
 
+    def leggiHomeJson(self):
+        #TODO:leggere il file home.json e impostare i spinbox
+        pass
+
+    def salvaHomeJson(self):
+        #TODO:leggere spinbox e salvare file home.json
+        pass
+
+    def leggiLimitJson(self):
+        #TODO:leggere il file limiti e impostare i spinbox
+        pass
+
+    def salvaLimitJson(self):
+        #TODO:leggere spinbox limiti e salvare file limit.json
+        pass
 
     def initTabImpostazioniControllo(self, tab):
         # ------------- button ---------
         Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
         Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
+
+        #--------- json -----------
+        # JSON
+        Button(tab, text="Carica limit.json", command=self.leggiLimitJson).place(x=150, y=10)
+        Button(tab, text="Salva limit.json", command=self.salvaLimitJson).place(x=150, y=40)
 
         # utile per poter chiamare .set() sulla variabile di tipo IntVar()
         self.tetaMin = [[] ,[],[],[],[]] # ATTENZIONE: [[]*3] COPIA GLI INDIRIZZI!!!!!!!! (grosso problema)
