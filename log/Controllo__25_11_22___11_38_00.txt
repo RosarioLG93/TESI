@@ -1,0 +1,6 @@
+Ho ricevuto il comando:?
+SCHEDA MOTORI V1
+Ho ricevuto il comando:read:8
+Lettura valore 8:16
+OK
+
