@@ -23,7 +23,7 @@ import datetime
 
 class finestraMano():
 
-    def __init__(self, titolo="Mano"):
+    def __init__(self, titolo="TESI"):
         # ----- ARDUINO --------
         self.arduino_motori = None
         self.arduino_pressione = None
@@ -115,8 +115,8 @@ class finestraMano():
         self.tab_impostazioni_home = Frame(self.notebook_impostazioni)
         self.notebook_impostazioni.add(self.tab_impostazioni_controllo, text="Angoli Min/Max EEPROM")
         self.notebook_impostazioni.add(self.tab_impostazioni_home, text="Posizione iniziale")
-        self.notebook_impostazioni.add(self.tab_impostazioni_pressione, text="Pressione")
-        self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
+        #self.notebook_impostazioni.add(self.tab_impostazioni_pressione, text="Pressione")
+        #self.notebook_impostazioni.add(self.tab_impostazioni_guanto, text="Guanto controllo remoto")
         self.initTabImpostazioniControllo(self.tab_impostazioni_controllo)
         self.initTabImpostazioniPosizioneIniziale(self.tab_impostazioni_home)
         # ---label info impostazioni (comune per tutti)
@@ -395,7 +395,16 @@ class finestraMano():
     # ------------------ TAB CONTROLLO (SLIDER) --------------------------
 
     def initTabControllo(self,tab):
-        #TODO:aggiungere slider e file json locale da salvare
+        #TODO: CONTROLLO DA COMPLETARE (HOME E CONTROLLO REMOTO GUANTO)
+        Button(tab,text="Home",command=lambda :()).place(x=10,y=10)
+        Button(tab, text="ACQUISISCI GUANTO", command=lambda: ()).place(x=150, y=32)
+        Label(tab,text="Intervallo(ms)").place(x=150, y=6)
+        self.delay_guanto_acquisizione = tk.Entry(tab, width=10)
+        self.delay_guanto_acquisizione.place(x=240, y=6)
+        self.delay_guanto_acquisizione.insert(0, "0")
+
+
+        #TODO: file json locale da caricare per impostare home e min/max
         scheda_movimento_s3 = LabelFrame(tab, text="teta[2]", width=190, height=180)
         scheda_movimento_s3.place(x=140, y=60)
 
@@ -665,13 +674,13 @@ class finestraMano():
         Button(self.scheda_seriale[1], text="Invia", command=lambda: self.inviaComando(1)).place(x=160, y=5)
         Button(self.scheda_seriale[2], text="Invia", command=lambda: self.inviaComando(2)).place(x=160, y=5)
         #BUTTON_CLEAR
-        Button(self.scheda_seriale[0], text="Clear", command=lambda: self.clearSeriale(0)).place(x=200, y=5)
-        Button(self.scheda_seriale[1], text="Clear", command=lambda: self.clearSeriale(1)).place(x=200, y=5)
-        Button(self.scheda_seriale[2], text="Clear", command=lambda: self.clearSeriale(2)).place(x=200, y=5)
+        Button(self.scheda_seriale[0], text="Clear", command=lambda: self.clearSeriale(0)).place(x=300, y=5)
+        Button(self.scheda_seriale[1], text="Clear", command=lambda: self.clearSeriale(1)).place(x=300, y=5)
+        Button(self.scheda_seriale[2], text="Clear", command=lambda: self.clearSeriale(2)).place(x=300, y=5)
         #BUTTON_SALVA_TESTO
-        Button(self.scheda_seriale[0], text="Salva", command=lambda: self.salvaTesto(0)).place(x=240, y=5)
-        Button(self.scheda_seriale[1], text="Salva", command=lambda: self.salvaTesto(1)).place(x=240, y=5)
-        Button(self.scheda_seriale[2], text="Salva", command=lambda: self.salvaTesto(2)).place(x=240, y=5)
+        Button(self.scheda_seriale[0], text="Salva", command=lambda: self.salvaTesto(0)).place(x=350, y=5)
+        Button(self.scheda_seriale[1], text="Salva", command=lambda: self.salvaTesto(1)).place(x=350, y=5)
+        Button(self.scheda_seriale[2], text="Salva", command=lambda: self.salvaTesto(2)).place(x=350, y=5)
 
         # TEXT
         self.testo_seriale = []
@@ -846,10 +855,11 @@ class finestraMano():
             try:
                 self.root_modifica = Toplevel(self.root)
                 self.root_modifica.geometry("800x80+600+600")
+                self.root_modifica.title("Modifica")
                 self.entry_modifica_comando = Entry(self.root_modifica, width=100)
                 self.entry_modifica_comando.place(x=10, y=10)
 
-                self.entry_modifica_comando.insert(0, self.listbox_micromovimenti.get(indice)[0:self.listbox_micromovimenti.get(indice).l])
+                self.entry_modifica_comando.insert(0, self.listbox_micromovimenti.get(indice)[0:len(self.listbox_micromovimenti.get(indice))-1])
                 Button(self.root_modifica, text="Salva", command=lambda : self.aggiornaMicromovimento(indice)).place(x=350, y=50)
                 Button(self.root_modifica, text="Annulla", command=self.annullaAggiornamentoMicromovimento).place(x=400,y=50)
             except Exception as e:
@@ -888,7 +898,8 @@ class finestraMano():
             x["state"] = NORMAL
 
     def initPulsantiAcquisizioneMovimento(self, tab):
-        self.frame_acquisizione = Frame(tab, width=380, height=150, bg='lightblue')
+        #TODO:aggiugngere acquisisizione stream guanto
+        self.frame_acquisizione = Frame(tab, width=380, height=200, bg='lightblue')
         self.frame_acquisizione.place(x=10, y=550)
         self.entry_comando_creatore = Entry(self.frame_acquisizione, width=36)
         self.entry_comando_creatore.place(x=10, y=10)
@@ -896,12 +907,22 @@ class finestraMano():
         self.bt_aggiungi_micromovimento = Button(self.frame_acquisizione, text="Aggiungi",
                                                  command=self.aggiungiMicromovimento)
         self.bt_aggiungi_micromovimento.place(x=240, y=10)
-        Button(self.frame_acquisizione, text="Acquisisci posizione Controllo", command=self.acquisisciPosizioneControllo).place(
+        Button(self.frame_acquisizione, text="Acquisisci singola posizione Controllo", command=self.acquisisciPosizioneControllo).place(
             x=10, y=40)
-        Button(self.frame_acquisizione, text="Acquisisci posizione Retroazione",
+        Button(self.frame_acquisizione, text="Acquisisci singola posizione Retroazione",
                command=self.acquisisciPosizioneRetroazione).place(x=10, y=70)
-        Button(self.frame_acquisizione, text="Acquisisci posizione Guanto", command=self.acquisisciPosizioneGuanto).place(x=10,
+        Button(self.frame_acquisizione, text="Acquisisci singola posizione Guanto", command=self.acquisisciPosizioneGuanto).place(x=10,
                                                                                                                 y=100)
+        #TODO: STREAM GUANTO
+        Label(self.frame_acquisizione,bg='lightblue',text="Intervallo(ms)").place(x=10,
+                                                             y=160)
+
+        Button(self.frame_acquisizione, text="Registra Guanto",
+               command=self.acquisisciPosizioneGuanto).place(x=180,y=158)
+        self.delay_guanto_registrazione=tk.Entry(self.frame_acquisizione,width=10)
+        self.delay_guanto_registrazione.place(x=100,y=160)
+        self.delay_guanto_registrazione.insert(0,"100")
+
 
     def aggiungiMicromovimento(self,
                                event=None):  # event mi serve per il bind, metto None se il metodo non è chiamato da bind
