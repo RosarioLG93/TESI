@@ -405,21 +405,21 @@ class finestraMano():
 
 
         #TODO: file json locale da caricare per impostare home e min/max
-        scheda_movimento_s3 = LabelFrame(tab, text="teta[2]", width=190, height=180)
-        scheda_movimento_s3.place(x=140, y=60)
+        scheda_movimento_s3 = LabelFrame(tab, text="teta[2]", width=290, height=180)
+        scheda_movimento_s3.place(x=20, y=60)
 
-        scheda_movimento_s2 = LabelFrame(tab, text="teta[1]", width=190, height=180)
-        scheda_movimento_s2.place(x=140, y=250)
+        scheda_movimento_s2 = LabelFrame(tab, text="teta[1]", width=290, height=180)
+        scheda_movimento_s2.place(x=20, y=250)
 
 
-        scheda_movimento_s1 = LabelFrame(tab, text="teta[0]", width=190, height=180)
-        scheda_movimento_s1.place(x=140, y=440)
+        scheda_movimento_s1 = LabelFrame(tab, text="teta[0]", width=290, height=180)
+        scheda_movimento_s1.place(x=20, y=440)
 
-        scheda_movimento_fi = LabelFrame(tab, text="fi", width=190, height=220)
-        scheda_movimento_fi.place(x=140, y=630)
+        scheda_movimento_fi = LabelFrame(tab, text="fi", width=290, height=220)
+        scheda_movimento_fi.place(x=20, y=625)
 
-        scheda_movimento_pollice = LabelFrame(tab, text="Pollice", width=90, height=740)
-        scheda_movimento_pollice.place(x=10, y=60)
+        #scheda_movimento_pollice = LabelFrame(tab, text="Pollice", width=90, height=740)
+        #scheda_movimento_pollice.place(x=10, y=60)
 
         # ------------------------ S2 (angolo[1]) ----------------------------------
 
@@ -432,33 +432,34 @@ class finestraMano():
         self.slider[1][1] = tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140,from_=-0, to=110)
         # la precedente operazione è necessaria per fare successivamente slider[1][1].set(...)
         self.slider[1][1].place(x=10, y=10)
-        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-0, to=110).place(x=50, y=10)
-        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=90, y=10)
-        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=130, y=10)
-
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-0, to=90).place(x=70, y=10)
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=90).place(x=120, y=10)
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=90).place(x=170, y=10)
+        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0,to=90).place(x=220, y=10)
 
 
         # ---------------- teta[1] (angolo[1]) ----------------------------
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=5, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=45, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=85, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=125, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=10, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110 ).place(x=50, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110 ).place(x=90, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=130, y=10)
+        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=170, y=10)
 
         # ---------------- teta[0] (angolo[0]) ----------------------------
         self.slider[1][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90, command=lambda val:self.aggiornaAngoloTeta(1,0,val)).place(x=10, y=10)
         tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=50, y=10)
         tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=90, y=10)
         tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=130, y=10)
-
+        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=170, y=10)
 
         #----------- fi -----------------
-        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50).place(x=20, y=5)
-        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50 ).place(x=20, y=45)
-        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50 ).place(x=20, y=85)
-        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-50, to=50).place(x=20, y=125)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-15, to=15).place(x=20, y=0)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-15, to=15 ).place(x=20, y=35)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-15, to=15 ).place(x=20, y=75)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-15, to=15).place(x=20, y=115)
+        tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-15, to=15).place(x=20, y=155)
 
-
-
+        """
         #pollice
         tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,to=90).place(x=10, y=10)
         tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,
@@ -467,7 +468,7 @@ class finestraMano():
                  to=90).place(x=10, y=320)
         tk.Scale(scheda_movimento_pollice, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20,
                  to=90).place(x=10, y=480)
-
+        """
 
 
     # ---------------------------------------------------------------------
@@ -587,7 +588,7 @@ class finestraMano():
         self.label_info.place(x=10, y=840)
 
     def connetti(self, i):
-        print("Mi collego a arduino " + str(i))
+        print("Mi collego ad arduino " + str(i))
         if (self.arduino_connesso[i] == False):
             # connetti
             try:
