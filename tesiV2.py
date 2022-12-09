@@ -57,6 +57,7 @@ class finestraMano():
         self.initMenu()
 
 
+
         self.root.protocol("WM_DELETE_WINDOW", self.chiudiTutto)  # chiudiTutto viene eseguito quando clicco su x rossa
         self.initCartellaLavoro()
         self.disabilitaPulsanti()  # in questo modo devo necessariamente aprire un file per abiltiare i comandi
@@ -65,6 +66,7 @@ class finestraMano():
     def initMutex(self):
         self.mutexSerialeControllo=threading.Lock()
         self.mutexSerialeGuanto=threading.Lock()
+
 
         #2 mutex per chiedere un comando alla volta
         self.mutexControlloLuttura=threading.Lock()
@@ -90,6 +92,7 @@ class finestraMano():
         #self.menu_strumenti.add_command(label="Configura mappa", command=lambda: ())
         #self.menu_strumenti.add_command(label="Impostazioni Arduino", command=lambda: ())
 
+        #TODO: manuale da completare
         self.menu_info.add_command(label="Manuale", command=lambda: ())
         #self.menu_info.add_command(label="Protocollo arduino", command=lambda: ())
 
@@ -101,7 +104,7 @@ class finestraMano():
         self.root_impostazioni.geometry("1200x600+400+200")
         self.root_impostazioni.title("Impostazioni")
         self.root_impostazioni.resizable(False, False)
-        self.root_impostazioni.attributes("-topmost", False)
+        #self.root_impostazioni.attributes("-topmost", False)
         #self.frame_impostazioni = LabelFrame(self.root_impostazioni, text="Impostazioni", width=1100, height=500)
         #self.frame_impostazioni.place(x=20, y=20)
         self.root_impostazioni.protocol("WM_DELETE_WINDOW", self.chiudiImpostazioni)  # per sicurezza
@@ -123,7 +126,7 @@ class finestraMano():
         Label(self.root_impostazioni, text="INFO:").place(x=30, y=540)
         self.label_info_impostazioni = Label(self.root_impostazioni, text="---")
         self.label_info_impostazioni.place(x=30, y=560)
-
+        self.leggiHomeJson()
 
     def initTabImpostazioniPosizioneIniziale(self,tab):
         #TODO:Inserire spinbox valori iniziali, salvati in un json, le mappe inizializzate usano il file json
@@ -166,11 +169,44 @@ class finestraMano():
 
     def leggiHomeJson(self):
         #TODO:leggere il file home.json e impostare i spinbox
-        pass
+        try:
+            file=open(os.path.join("impostazioni","json","home.json"),"r")
+            obj_json=json.load(file)
+            #TETA
+            for i in range(0,5):
+                self.spinFiHome[i].set(obj_json["fi"][i])
+                for j in range(0,3):
+                    self.spinTetaHome[i][j].set(obj_json["d"+str(i)][j])
+            file.close()
+            self.label_info_impostazioni["text"]="json caricato correttamente"
+        except Exception as e:
+            self.label_info_impostazioni["text"]=e.__str__()
 
     def salvaHomeJson(self):
         #TODO:leggere spinbox e salvare file home.json
-        pass
+        self.homeJsonDict = {}
+        temp = [[],[],[],[],[],[]]
+        for i in range(0,5):
+            for j in range(0,3):
+                temp[i].insert(j,self.spinTetaHome[i][j].get())
+            self.homeJsonDict["d" + str(i)] =temp[i]
+        #FI
+        for i in range(0,5):
+            temp[5].insert(i,self.spinFiHome[i].get())
+        self.homeJsonDict["fi"]=temp[5]
+        scelta = messagebox.askyesno("Salvataggio","Sei sicuro di salvare?")
+
+        if scelta == False:
+            return
+        try:
+            file=open(os.path.join("impostazioni","json","home.json"),"w")
+            json.dump(self.homeJsonDict,file)
+            file.close()
+            self.label_info_impostazioni["text"] = "SALVATO"
+        except Exception as e:
+            self.label_info_impostazioni["text"]=e.__str__()
+
+
 
     def leggiLimitJson(self):
         #TODO:leggere il file limiti e impostare i spinbox
