@@ -126,7 +126,8 @@ class finestraMano():
         Label(self.root_impostazioni, text="INFO:").place(x=30, y=540)
         self.label_info_impostazioni = Label(self.root_impostazioni, text="---")
         self.label_info_impostazioni.place(x=30, y=560)
-        self.leggiHomeJson()
+        self.caricaHomeJson()
+        self.caricaLimitJson()
 
     def initTabImpostazioniPosizioneIniziale(self,tab):
         #TODO:Inserire spinbox valori iniziali, salvati in un json, le mappe inizializzate usano il file json
@@ -142,11 +143,11 @@ class finestraMano():
             self.label_frame_spin_home.append(LabelFrame(tab, text=nome[i], width=100, height=400))
             self.label_frame_spin_home[i].place(x=130 + (130 * i), y=80)
 
-        Button(tab, text="Carica ", command=self.leggiValoriEepromHome).place(x=10, y=10)
+        Button(tab, text="Carica ", command=self.caricaValoriEepromHome).place(x=10, y=10)
         Button(tab, text="Salva su EEPROM", command=self.salvaValoriEepromHome).place(x=10, y=40)
 
         #JSON
-        Button(tab, text="Carica home.json", command=self.leggiHomeJson).place(x=150, y=10)
+        Button(tab, text="Carica home.json", command=self.caricaHomeJson).place(x=150, y=10)
         Button(tab, text="Salva home.json", command=self.salvaHomeJson).place(x=150, y=40)
 
         Label(tab, image=self.imgr).place(x=770, y=85)
@@ -167,8 +168,7 @@ class finestraMano():
 
         Label(tab, text="fi home").place(x=50, y=405)
 
-    def leggiHomeJson(self):
-        #TODO:leggere il file home.json e impostare i spinbox
+    def caricaHomeJson(self):
         try:
             file=open(os.path.join("impostazioni","json","home.json"),"r")
             obj_json=json.load(file)
@@ -178,12 +178,11 @@ class finestraMano():
                 for j in range(0,3):
                     self.spinTetaHome[i][j].set(obj_json["d"+str(i)][j])
             file.close()
-            self.label_info_impostazioni["text"]="json caricato correttamente"
+            self.label_info_impostazioni["text"]="home.json caricato correttamente"
         except Exception as e:
             self.label_info_impostazioni["text"]=e.__str__()
 
     def salvaHomeJson(self):
-        #TODO:leggere spinbox e salvare file home.json
         self.homeJsonDict = {}
         temp = [[],[],[],[],[],[]]
         for i in range(0,5):
@@ -208,22 +207,93 @@ class finestraMano():
 
 
 
-    def leggiLimitJson(self):
-        #TODO:leggere il file limiti e impostare i spinbox
-        pass
+    def caricaLimitJson(self):
+        try:
+            """
+            self.tetaMin = [[] ,[],[],[],[]] # ATTENZIONE: [[]*3] COPIA GLI INDIRIZZI!!!!!!!! (grosso problema)
+            self.tetaMax = [[] ,[],[],[],[]]
+            self.fiMin = [[] ,[],[],[],[]]
+            self.fiMax = [[] ,[],[],[],[]]
+            """
+            file = open(os.path.join("impostazioni", "json", "limit.json"), "r")
+            obj_json = json.load(file)
+            print(obj_json)
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    self.spinTetaMax[i][j].set(obj_json["tetaMax"]["d"+str(i)][j])
+
+            for i in range(0, 5):
+                for j in range(0, 3):
+                    self.spinTetaMin[i][j].set(obj_json["tetaMin"]["d"+str(i)][j])
+
+            for i in range(0, 5):
+                self.spinFiMin[i].set(obj_json["fiMin"][i])
+
+            for i in range(0, 5):
+                self.spinFiMax[i].set(obj_json["fiMax"][i])
+
+            file.close()
+            self.label_info_impostazioni["text"]="limit.json caricato correttamente"
+        except Exception as e:
+            self.label_info_impostazioni["text"]=e.__str__()
 
     def salvaLimitJson(self):
-        #TODO:leggere spinbox limiti e salvare file limit.json
-        pass
+        try:
+            tetaMax={}
+            tetaMin={}
+            fiMin=[]
+            fiMax=[]
+            self.limitJsonDict={}
+            for i in range(0, 5):
+                temp=[]
+                for j in range(0, 3):
+                    temp.insert(j,self.spinTetaMax[i][j].get())
+                tetaMax["d"+str(i)]=temp
+
+
+            for i in range(0, 5):
+                temp = []
+                for j in range(0, 3):
+                    temp.insert(j, self.spinTetaMin[i][j].get())
+                tetaMin["d" + str(i)] = temp
+
+
+            for i in range(0, 5):
+                fiMax.append(self.spinFiMax[i].get())
+
+            for i in range(0, 5):
+                fiMin.append(self.spinFiMin[i].get())
+
+            self.limitJsonDict["tetaMax"]=tetaMax
+            self.limitJsonDict["tetaMin"] = tetaMin
+            self.limitJsonDict["fiMin"] = fiMin
+            self.limitJsonDict["fiMax"] = fiMax
+            print(self.limitJsonDict)
+
+
+            scelta = messagebox.askyesno("Salvataggio", "Sei sicuro di salvare?")
+            if scelta == False:
+                return
+
+            #salvataggio file
+            file=open(os.path.join("impostazioni","json","limit.json"),"w")
+            json.dump(self.limitJsonDict,file)
+            file.close()
+            self.label_info_impostazioni["text"]="limit.json salvato"
+        except Exception as e:
+            self.label_info_impostazioni["text"]=e.__str__()
+
+
+
 
     def initTabImpostazioniControllo(self, tab):
         # ------------- button ---------
-        Button(tab, text="Carica ", command=self.leggiValoriEeprom).place(x=10, y=10)
+        Button(tab, text="Carica ", command=self.caricaValoriEeprom).place(x=10, y=10)
         Button(tab, text="Salva su EEPROM", command=self.salvaValoriEeprom).place(x=10, y=40)
 
         #--------- json -----------
         # JSON
-        Button(tab, text="Carica limit.json", command=self.leggiLimitJson).place(x=150, y=10)
+        Button(tab, text="Carica limit.json", command=self.caricaLimitJson).place(x=150, y=10)
         Button(tab, text="Salva limit.json", command=self.salvaLimitJson).place(x=150, y=40)
 
         # utile per poter chiamare .set() sulla variabile di tipo IntVar()
@@ -232,8 +302,8 @@ class finestraMano():
         self.fiMin = [[] ,[],[],[],[]]
         self.fiMax = [[] ,[],[],[],[]]
 
-        self.spinTetaMin = [[] ,[],[],[],[]]
-        self.spinTetaMax = [[] ,[],[],[],[]]
+        self.spinTetaMin = [[],[],[],[],[]]
+        self.spinTetaMax = [[],[],[],[],[]]
         self.spinFiMin = [ ]
         self.spinFiMax = [ ]
 
@@ -249,26 +319,26 @@ class finestraMano():
             for j in range(0,3):
                 self.spinTetaMin[i].append(ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10 ))#state=DISABLED)
                 self.spinTetaMin[i][j].place(x=10, y=(j * 90) + 40)
-                self.spinTetaMin[i][j].set((3*i)+j)
+                #self.spinTetaMin[i][j].set((3*i)+j)
                 #self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
         for i in range(0, 5):
             for j in range(0, 3):
                 self.spinTetaMax[i].append( ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10))  # state=DISABLED)
                 self.spinTetaMax[i][j].place(x=10, y=(j * 90) + 10)
-                self.spinTetaMax[i][j].set(15+(3*i)+j)
+                #self.spinTetaMax[i][j].set(15+(3*i)+j)
                 # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
         for i in range(0, 5):
                 self.spinFiMin.append(ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10))  # state=DISABLED)
                 self.spinFiMin[i].place(x=10, y= 340)
-                self.spinFiMin[i].set(30+i)
+                #self.spinFiMin[i].set(30+i)
                 # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
         for i in range(0, 5):
             self.spinFiMax.append(ttk.Spinbox(self.label_frame_spin[i], from_=-30, to=200, width=10))  # state=DISABLED)
             self.spinFiMax[i].place(x=10, y=310)
-            self.spinFiMax[i].set(35+i)
+            #self.spinFiMax[i].set(35+i)
             # self.spinTetaMin[j][i].place(x=10 +(j*2), y=(i * 30) + 10)
 
 
@@ -288,7 +358,7 @@ class finestraMano():
 
 
 
-    def leggiValoriEeprom(self):
+    def caricaValoriEeprom(self):
         #---------- LETTURA VALORI MIN/MAX ------------------------------------
         if self.arduino_connesso[0]==True:
             self.label_info_impostazioni["text"]="Avvio processo, lock seriale"
@@ -356,7 +426,7 @@ class finestraMano():
             self.label_info_impostazioni["text"]="Arduino[0] Controllo & Retroazione disconnesso"
 
 
-    def leggiValoriEepromHome(self):
+    def caricaValoriEepromHome(self):
         # --------------------------------- LETTURA VALORI HOME -------------------
         if (self.arduino_connesso[0] == True):
             for i in range(0, 5):
