@@ -138,7 +138,7 @@ class ManoPressione():
         for i in range(0,len(self.sensore[0])): #self.sensore[0] è l'insieme di TUTTE le coordinate x
             #anche il punto è una lista
             print(self.sensore[0][i],self.sensore[1][i])
-            obj=self.ax.scatter(self.sensore[0][i],self.sensore[1][i],s=self.dimensione, edgecolor='black' , facecolor='maroon', alpha=float(self.sensore_valore[i])/1200.0)
+            obj=self.ax.scatter(self.sensore[0][i],self.sensore[1][i],s=self.dimensione, edgecolor='black' , facecolor='maroon', alpha=float(self.sensore_valore[i])/550.0)
             self.raccolta_sensori_punti.append(obj)
             obj=self.ax.text(self.sensore[0][i],self.sensore[1][i]-0.2,str(i))
             self.raccolta_sensori_text.append(obj)
@@ -149,6 +149,7 @@ class ManoPressione():
         #TODO: scegliere i riferimenti per i sensori con indici
         #per adesso supponiamo che in sensori sono interi (visto che è un unica lista)
         self.sensore_valore[i]=valore #0-1024
+        print(valore)
         self.aggiornaMappa()
 
 
