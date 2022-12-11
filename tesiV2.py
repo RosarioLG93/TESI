@@ -707,7 +707,8 @@ class finestraMano():
             try:
                 print("Baudrate:"+str(self.combo_baudrate[i].get()))
                 self.arduino[i] = serial.Serial(port=self.combo[i].get(), baudrate=self.combo_baudrate[i].get(), stopbits=1, bytesize=8)
-                self.label_info["text"] = "Scheda motori connessa " + self.combo[i].get()
+                nomi=["motori","pressione","guanto controllo remoto"]
+                self.label_info["text"] = "Scheda "+nomi[i]+ " connessa " + self.combo[i].get()
                 self.combo[i]["state"] = DISABLED
                 self.combo_baudrate[i]["state"]=DISABLED
                 self.bt_connetti[i]["text"] = "Disconnetti"
@@ -833,13 +834,19 @@ class finestraMano():
                 # provo a inviare
                 try:
                     self.arduino[i].write(self.entry_comando[i].get().encode())
+                    self.testo_seriale[i].insert(END,">>"+self.entry_comando[i].get()+"\n")
+                    self.testo_seriale[i].see(END)
+                    print("inviato")
                 except Exception as e:
                     print("Errore da invioComando(i)" + e.__str__())
                     self.label_info["text"] = "Errore invio comando"
             else:
                 if(comando!=""):
+                    print("Comando da inviare:"+comando)
                     try:
-                        self.arduino[i].write(self.entry_comando[i].get().encode())
+                        self.arduino[i].write(comando.encode())
+                        self.testo_seriale[i].insert(END, ">>" + comando+"\n")
+                        self.testo_seriale[i].see(END)
                     except Exception as e:
                         print("Errore da invioComando(i)" + e.__str__())
                         self.label_info["text"] = "Errore invio comando"
@@ -1320,15 +1327,36 @@ class finestraMano():
                 pass
 
         elif (i == 1):
+            print("Analisi comando 1")
             print("Esecuzione comando " + comando)
             # Scheda Pressione
-            pass
+            #verifico la presenza dei campi "s1" sul json appena ricevuto
+            #se presente modifico il valore id pressione e invio ok
+            #arduino ad ogni "next" reimposta il flag a true
+            try:
+                obj_json=json.loads(comando)
+                if(obj_json["s1"]!=None):
+                    print(obj_json["s1"])
+                    self.mano_pressione.aggiornaSensore(5,int(obj_json["s1"]))
+                    self.canvas_mano_pressione.draw()
+                    #x = threading.Thread(target=self.thread_invia_next, args=(1,))
+                    #x.start()
+                    #al primo comando errato si ferma, per evitare un loop
+                    self.inviaComando(1,"next")
+            except Exception as e:
+                print(e.__str__())
+
         elif (i == 2):
             print("Esecuzione comando " + comando)
             # Scheda Guanto
             pass
 
-
+"""
+    def thread_invia_next(self,args):
+        time.sleep(0.6)
+        self.inviaComando(1,"next")
+        pass
+"""
 mano_dx = finestraMano()
 # mano_sx=finestraMano(titolo="mano_sx")
 mainloop()

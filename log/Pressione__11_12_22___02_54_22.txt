@@ -1,0 +1,48 @@
+>>?
+SCHEDA PRESSIONE V1.0
+
+>>delay?
+300
+>>offset?
+500
+>>start
+{"s1":0}
+>>next
+{"s1":109}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>next
+{"s1":43}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>next
+{"s1":16}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>st
+comando sconosciuto
+>>op
+comando sconosciuto
+>>stop
+>>start
+{"s1":0}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>next
+{"s1":0}
+>>c
+comando sconosciuto
+>>stop
+
