@@ -7,6 +7,8 @@ import tkinter as tk
 import time
 import math
 import threading
+
+import numpy as np
 import serial.tools.list_ports
 from tkinter import messagebox
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -431,10 +433,13 @@ class finestraMano():
         if (self.arduino_connesso[0] == True):
             for i in range(0, 5):
                 for j in range(0, 3):
-                    self.inviaComando(0, "read:" + str(40 + (i * 3) + j))
+                    #usare mutex per evitare valanga di messaggi in seriale
+                    #self.inviaComando(0, "read:" + str(40 + (i * 3) + j))
                     # self.spinTetaHome.set(....)
+                    pass
             for i in range(0, 5):
-                self.inviaComando(0, "read:" + str(52 + i))
+                #self.inviaComando(0, "read:" + str(52 + i))
+                pass
         else:
             self.label_info_impostazioni["text"] = "Arduino[0] Controllo & Retroazione disconnesso"
 
@@ -500,9 +505,16 @@ class finestraMano():
 
     # ------------------ TAB CONTROLLO (SLIDER) --------------------------
 
+    def resetHomeControllo(self):
+        self.slider[1][0].set(self.home[1][0])
+        self.slider[1][1].set(self.home[1][1])
+        self.slider[1][2].set(self.home[1][2])
+
+
+
     def initTabControllo(self,tab):
         #TODO: CONTROLLO DA COMPLETARE (HOME E CONTROLLO REMOTO GUANTO)
-        Button(tab,text="Home",command=lambda :()).place(x=5,y=10)
+        Button(tab,text="Home",command=self.resetHomeControllo).place(x=5,y=10)
         Button(tab, text="ACQUISISCI GUANTO", command=lambda: ()).place(x=200, y=10)
         Label(tab,text="Intervallo").place(x=70, y=15)
         self.delay_guanto_acquisizione = tk.Entry(tab, width=8)
@@ -527,36 +539,75 @@ class finestraMano():
         #scheda_movimento_pollice = LabelFrame(tab, text="Pollice", width=90, height=740)
         #scheda_movimento_pollice.place(x=10, y=60)
 
+
+        #----------
+        try:
+            file = open(os.path.join("impostazioni", "json", "home.json"), "r")
+            obj_json = json.load(file)
+            file.close()
+            #home=np.array(type=int)
+            self.home=[[0] * 3] * 5
+            self.home[1][0]=obj_json["d1"][0]
+            self.home[1][1] = obj_json["d1"][1]
+            self.home[1][2] = obj_json["d1"][2]
+        except Exception as e:
+            print(e.__str__())
+            self.home = 0
+            self.home[1][0] = 0
+            self.home[1][1] = 0
+            self.home[1][2] = 0
+            self.label_info_creatore["text"]="file home.json non presente"
+
+
+
         # ------------------------ S2 (angolo[1]) ----------------------------------
 
-        self.slider = [[0] * 3] * 5
+        self.slider = [[tk.Scale,tk.Scale,tk.Scale],[tk.Scale,tk.Scale,tk.Scale,],[tk.Scale,tk.Scale,tk.Scale,],[tk.Scale,tk.Scale,tk.Scale],[tk.Scale,tk.Scale,tk.Scale]]
 
         #----------------- teta[2] angolo[2] ---------------------------------
         # ricorda che S3 si muove perchè è vincolato a S2 (in questa versione)
         # TODO: aggiungere impostazioni slider nella sezione impostazioni per valori MIN & MAX
         # ttk.Scale(scheda_movimento,orient='vertical',length=160,from_=-0, to=130,command=lambda val: aggiorna(val,0)).place(x=10,y=10)
-        self.slider[1][1] = tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140,from_=-0, to=110)
-        # la precedente operazione è necessaria per fare successivamente slider[1][1].set(...)
-        self.slider[1][1].place(x=20, y=10)
-        tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-0, to=90).place(x=70, y=10)
+        self.slider[0][2] = tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140,from_=-0, to=110)
+        self.slider[0][2].place(x=20, y=10)
+
+        self.slider[1][2]=tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-0, to=90, command=lambda val:self.aggiornaAngoloTeta(1,2,val))
+        self.slider[1][2].place(x=70, y=10)
+        self.slider[1][2].set(self.home[1][2])
+
+
         tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=90).place(x=120, y=10)
         tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=90).place(x=170, y=10)
         tk.Scale(scheda_movimento_s3, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0,to=90).place(x=220, y=10)
 
 
         # ---------------- teta[1] (angolo[1]) ----------------------------
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=20, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110 ).place(x=70, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110 ).place(x=120, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=170, y=10)
-        tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=220, y=10)
+        self.slider[0][1]=tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=20, y=10)
+
+        self.slider[1][1]=tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110, command=lambda val:self.aggiornaAngoloTeta(1,1,val) )
+        self.slider[1][1].place(x=70, y=10)
+        self.slider[1][1].set(self.home[1][1])
+
+        self.slider[2][1]=tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110 ).place(x=120, y=10)
+        self.slider[3][1]=tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=170, y=10)
+        self.slider[4][1]=tk.Scale(scheda_movimento_s2, orient='vertical', resolution=1, tickinterval=0, length=140, from_=0, to=110).place(x=220, y=10)
 
         # ---------------- teta[0] (angolo[0]) ----------------------------
-        self.slider[1][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90, command=lambda val:self.aggiornaAngoloTeta(1,0,val)).place(x=20, y=10)
-        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=70, y=10)
-        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 ).place(x=120, y=10)
-        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=170, y=10)
-        tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90).place(x=220, y=10)
+        self.slider[0][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90)
+        self.slider[0][0].place(x=20, y=10)
+
+
+        self.slider[1][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140 ,from_=-20, to=90 , command=lambda val:self.aggiornaAngoloTeta(1,0,val))
+        self.slider[1][0].place(x=70, y=10)
+        self.slider[1][0].set(self.home[1][0])
+
+
+        self.slider[2][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90 )
+        self.slider[2][0].place(x=120, y=10)
+        self.slider[3][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90)
+        self.slider[3][0].place(x=170, y=10)
+        self.slider[4][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140, from_=-20, to=90)
+        self.slider[4][0].place(x=220, y=10)
 
         #----------- fi -----------------
         tk.Scale(scheda_movimento_fi, orient='horizontal', resolution=1, tickinterval=0, length=140, from_=-15, to=15).place(x=90, y=0)
@@ -597,7 +648,13 @@ class finestraMano():
         Aggiorno la mappa e successivamente provo ad inviare
         l'invio è annullato se c'è uno stream attivo!!! (che sia controllo remoto o aggionamento eeprom e posizione iniziale)
 
+        In questo caso utilizziamo "Dij:valore", inutile json perchè cambio uno slider alla volta
+
+
         """
+
+        print("D"+str(dito)+str(teta)+":"+str(valore))
+        self.inviaComando(1,"D"+str(dito)+str(teta)+":"+str(valore))
         self.mano_controllo.setAngolo(dito,teta,valore)
         self.canvas_mano_controllo.draw() #per aggiornare la mappa
 
@@ -827,12 +884,12 @@ class finestraMano():
     # --------- INVIA COMANDO --------
 
     def inviaComando(self, i,comando=""):
-        print("Invio comando di entry_comando[" + str(i) + "]\nComando da inviare: " + self.entry_comando[i].get())
         if (self.arduino_connesso[i] == True):
             # verifico la presenza di un comando
             if (self.entry_comando[i].get().strip() != ""):
                 # provo a inviare
                 try:
+                    print("Comando da inviare: " + self.entry_comando[i].get())
                     self.arduino[i].write(self.entry_comando[i].get().encode())
                     self.testo_seriale[i].insert(END,">>"+self.entry_comando[i].get()+"\n")
                     self.testo_seriale[i].see(END)
@@ -960,12 +1017,18 @@ class finestraMano():
         Button(self.frame_gestione, text="Elimina", command=self.eliminaMicromovimento).grid(row=6, column=0, stick="NW", padx=10,
                                                                            pady=10)
 
-
+    #intera sequenza
     def inviaMovimento(self):
         pass
 
     def inviaMicromovimento(self):
-        pass
+        indice = self.listbox_micromovimenti.curselection()
+        print(indice)
+        if (indice != ()):
+            self.inviaComando(1,self.listbox_micromovimenti.get(indice)[0:len(self.listbox_micromovimenti.get(indice))-1])
+            print("Micromovimento inviato")
+        else:
+            print("Seleziona un micromovimento da inviare")
 
     # -------------------------- MODIFICA MICROMOVIMENTO -----------------------------------------
 
@@ -1037,9 +1100,8 @@ class finestraMano():
         #TODO: STREAM GUANTO
         Label(self.frame_acquisizione,bg='lightblue',text="Intervallo(ms)").place(x=10,
                                                              y=160)
-
         Button(self.frame_acquisizione, text="Registra Guanto",
-               command=self.acquisisciPosizioneGuanto).place(x=180,y=158)
+               command=lambda :()).place(x=180,y=158)
         self.delay_guanto_registrazione=tk.Entry(self.frame_acquisizione,width=10)
         self.delay_guanto_registrazione.place(x=100,y=160)
         self.delay_guanto_registrazione.insert(0,"100")
@@ -1078,12 +1140,26 @@ class finestraMano():
 
 
     def acquisisciPosizioneRetroazione(self):
-        # TODO:acquisisciPosizioneRetroazione
-        pass
+        posizione = self.listbox_micromovimenti.curselection().__len__()
+        if (posizione == 0):
+            self.listbox_micromovimenti.insert(END, self.mano_retroazione.getJson() + "\n")
+        else:
+            self.listbox_micromovimenti.insert(int(self.listbox_micromovimenti.curselection()[0]) + 1,
+                                               self.mano_retroazione.getJson() + "\n")
+        self.entry_comando_creatore.delete(0, END)
+        self.listbox_micromovimenti.see(END)
+
 
     def acquisisciPosizioneGuanto(self):
-        # TODO:acquisisciPosizioneGuanto
-        pass
+        posizione = self.listbox_micromovimenti.curselection().__len__()
+        if (posizione == 0):
+            self.listbox_micromovimenti.insert(END, self.mano_guanto.getJson() + "\n")
+        else:
+            self.listbox_micromovimenti.insert(int(self.listbox_micromovimenti.curselection()[0]) + 1,
+                                               self.mano_guanto.getJson() + "\n")
+        self.entry_comando_creatore.delete(0, END)
+        self.listbox_micromovimenti.see(END)
+
 
     def selezionaCartella(self):
         try:
@@ -1307,6 +1383,8 @@ class finestraMano():
             # TEST
 
             try:
+                #TEST
+                """
                 angolo = [0, 0, 0]
                 i = 0
                 comando_ricevuto = comando.split("|")
@@ -1323,7 +1401,9 @@ class finestraMano():
                 self.mano_retroazione.setAngolo(1, 1, angolo[1])
                 self.mano_retroazione.setAngolo(1, 2, angolo[2])
                 self.canvas_mano_retroazione.draw()
-            except:
+                """
+            except Exception as e:
+                self.label_info["text"]=e.__str__()
                 pass
 
         elif (i == 1):
@@ -1349,7 +1429,15 @@ class finestraMano():
         elif (i == 2):
             print("Esecuzione comando " + comando)
             # Scheda Guanto
-            pass
+            try:
+                obj_json = json.loads(comando)
+                self.mano_guanto.setAngolo(1,1,obj_json["d1"][0])
+                self.mano_guanto.setAngolo(1, 2, obj_json["d1"][1])
+                self.canvas_mano_guanto.draw() #per aggiornare la mappa
+                self.inviaComando(2,"next")
+            except Exception as e:
+                print(e.__str__())
+                self.label_info["text"]=e.__str__()
 
 """
     def thread_invia_next(self,args):
