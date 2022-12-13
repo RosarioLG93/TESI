@@ -35,6 +35,7 @@ class finestraMano():
         # ------ THREAD ---------
         self.flag_thread = [False, False, False]
         self.thread_lettura = [None, None, None]
+        self.thred_rec_flag=False #per registrare i movimenti
 
         # ------ TKINTER ------
         self.dim_x = 1650
@@ -1100,11 +1101,41 @@ class finestraMano():
         #TODO: STREAM GUANTO
         Label(self.frame_acquisizione,bg='lightblue',text="Intervallo(ms)").place(x=10,
                                                              y=160)
-        Button(self.frame_acquisizione, text="Registra Guanto",
-               command=lambda :()).place(x=180,y=158)
+        self.bt_rec=Button(self.frame_acquisizione, text="Registra Guanto",
+               command=self.registraGuanto)
+        self.bt_rec.place(x=180,y=158)
         self.delay_guanto_registrazione=tk.Entry(self.frame_acquisizione,width=10)
         self.delay_guanto_registrazione.place(x=100,y=160)
-        self.delay_guanto_registrazione.insert(0,"100")
+        self.delay_guanto_registrazione.insert(0,"500")
+
+#------------------ REGISTRA GUANTO ---------------------------------------
+
+    def registraGuanto(self):
+        if(not self.thred_rec_flag):
+            #TODO: registraGuanto da completare
+            self.thread_rec=threading.Thread(target=self.registraGuantoThread)
+            self.thred_rec_flag=True
+            self.thread_rec.start()
+            self.bt_rec["text"]="Stop"
+        else:
+            self.thred_rec_flag = False
+            self.bt_rec["text"]="Registra Guanto"
+
+
+    def registraGuantoThread(self):
+        while(self.thred_rec_flag):
+            print("thread rec")
+            self.acquisisciPosizioneGuanto()
+            time.sleep(float(self.delay_guanto_registrazione.get())/1000)
+
+    """
+         RIPASSO 
+        self.thread_lettura[i] = threading.Thread(target=lambda: self.letturaSeriale(i))
+        self.thread_lettura[i].start()
+    """
+
+#-----------------------------------------------------------
+
 
 
     def aggiungiMicromovimento(self,
