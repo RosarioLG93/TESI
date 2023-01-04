@@ -598,7 +598,7 @@ class finestraMano():
         self.slider[0][0].place(x=20, y=10)
 
 
-        self.slider[1][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140 ,from_=-20, to=90 , command=lambda val:self.aggiornaAngoloTeta(1,0,val))
+        self.slider[1][0]=tk.Scale(scheda_movimento_s1, orient='vertical', resolution=1, tickinterval=0, length=140 ,from_=0, to=90 , command=lambda val:self.aggiornaAngoloTeta(1,0,val))
         self.slider[1][0].place(x=70, y=10)
         self.slider[1][0].set(self.home[1][0])
 
@@ -655,7 +655,7 @@ class finestraMano():
         """
 
         print("D"+str(dito)+str(teta)+":"+str(valore))
-        self.inviaComando(1,"D"+str(dito)+str(teta)+":"+str(valore))
+        self.inviaComando(0,"D"+str(dito)+str(teta)+":"+str(valore))
         self.mano_controllo.setAngolo(dito,teta,valore)
         self.canvas_mano_controllo.draw() #per aggiornare la mappa
 
@@ -1026,7 +1026,7 @@ class finestraMano():
         indice = self.listbox_micromovimenti.curselection()
         print(indice)
         if (indice != ()):
-            self.inviaComando(1,self.listbox_micromovimenti.get(indice)[0:len(self.listbox_micromovimenti.get(indice))-1])
+            self.inviaComando(0,self.listbox_micromovimenti.get(indice)[0:len(self.listbox_micromovimenti.get(indice))-1])
             print("Micromovimento inviato")
         else:
             print("Seleziona un micromovimento da inviare")
