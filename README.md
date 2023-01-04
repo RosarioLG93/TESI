@@ -7,4 +7,4 @@
 
 ##Modello in 3D
 
-<img src="./foto/1670935690561.bmp">
+<img src="./foto/1670935690561.jpg">
