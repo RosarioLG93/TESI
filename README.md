@@ -1,7 +1,10 @@
 # TESI
 
-Foto window programma <br>
-Foto exo 3d
+##GUI TKINTER PYTHON
 
-Video simulazione exo <br>
-video simiulazione mano <br>
+<img src="./foto/programma.bmp">
+
+
+##Modello in 3D
+
+<img src="./foto/1670935690561.bmp">
